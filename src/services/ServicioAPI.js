@@ -1,4 +1,5 @@
-class ServicioAPI {
+// API Service disponible globalmente
+var ServicioAPI = {
   async getData() {
     try {
       // Simular una llamada a API
@@ -9,7 +10,11 @@ class ServicioAPI {
       console.error('Error al obtener datos:', error);
       throw error;
     }
-  }
-}
+  },
 
-export default ServicioAPI;
+  async getProductos() {
+    // En un entorno real, esto haría una llamada a la API
+    // Por ahora, retornamos los productos del mock
+    return Promise.resolve(productos);
+  }
+};
