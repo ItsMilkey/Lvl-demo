@@ -1,0 +1,382 @@
+/* Reset global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: monospace, sans-serif;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  color: #222;
+  background: #fffbea;
+}
+
+/* --- ESTA ES LA REGLA AÑADIDA PARA CORREGIR EL LAYOUT --- */
+.app-container {
+  display: flex;
+  width: 100%; /* Asegura que ocupe todo el ancho */
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #b9dbf791;
+  border-right: 2px solid #ddd;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .logo {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.sidebar nav ul {
+  list-style: none;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 1rem;
+}
+
+.sidebar nav ul li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  padding: 0.4rem 0.6rem;
+  display: block;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.sidebar nav ul li a.active,
+.sidebar nav ul li a:hover {
+  background: #ddd;
+  color: #000;
+}
+
+/* Main */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  align-items: center; /* <-- LÍNEA AÑADIDA */
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 2px solid #ddd;
+  background: #f7e8a9;
+}
+
+.topbar input {
+  flex: 1;
+  max-width: 300px;
+  padding: 0.5rem;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.topbar .actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.carrito-icon img {
+  width: 30px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.carrito-icon img:hover {
+  transform: scale(1.1);
+}
+
+/* Tarjetas unificadas */
+.card, .category-card {
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 15px;
+  background: #fdf6d9;
+  text-align: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.card:hover, .category-card:hover {
+  background: #ffe680;
+  transform: scale(1.03);
+}
+
+.card img, .category-card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid #000;
+  margin: 10px 0;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #25d366;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #1da851;
+}
+
+/* Secciones */
+section {
+  padding: 2rem;
+}
+
+section h2, .highlight h1 {
+  margin-bottom: 1.2rem;
+}
+
+/* Grids */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* WhatsApp */
+.whatsapp-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  text-align: center;
+  z-index: 1001;
+}
+
+.whatsapp-msg {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #25d366;
+  background: #fff;
+  padding: 5px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.whatsapp-float img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+}
+
+.whatsapp-float img:hover {
+  transform: scale(1.1);
+}
+
+
+/* === Estilos para la Página de Reseñas === */
+
+.reseñas-container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.reseñas-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #fdf6d9; /* Cambiado */
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; /* Cambiado */
+  margin-bottom: 2rem;
+}
+
+.reseñas-container label {
+  font-weight: bold;
+  margin-bottom: -0.5rem;
+}
+
+.reseñas-container input,
+.reseñas-container select,
+.reseñas-container textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #fff; /* Cambiado */
+  border: 1px solid #aaa; /* Cambiado */
+  color: #222; /* Cambiado */
+  border-radius: 4px;
+  font-family: monospace, sans-serif;
+  font-size: 1rem;
+}
+
+#reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-card {
+  background-color: #fdf6d9; /* Cambiado */
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; /* Cambiado */
+}
+
+.review-card h3 {
+  color: #333; /* Cambiado */
+  margin-bottom: 0.5rem;
+}
+
+.review-card .stars {
+  margin-bottom: 0.5rem;
+}
+
+/* === Estilos para la Página de Referidos === */
+
+.points-display, .benefits-list {
+  background-color: #fdf6d9; /* Cambiado */
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; /* Cambiado */
+  margin-top: 2rem;
+}
+
+.points-display h2, .benefits-list h2 {
+  color: #333; /* Cambiado */
+  margin-bottom: 1rem;
+}
+
+.points-display p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.points-display span {
+  font-weight: bold;
+}
+
+.benefits-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.benefits-list li {
+  margin-bottom: 0.5rem;
+}
+/* === Estilos para la Página de Comunidad === */
+
+.highlight-card {
+  background-color: #fdf6d9; /* Cambiado */
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; /* Cambiado */
+  margin: 2rem;
+}
+
+.map-btn {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* === Estilos para Páginas de Autenticación === */
+
+.auth-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-container h1 {
+  color: #333; /* Cambiado */
+}
+
+.auth-container form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #fdf6d9; /* Cambiado */
+  padding: 2rem;
+  border-radius: 8px;
+  border: 2px solid #000; /* Cambiado */
+  margin: 1rem 0;
+}
+
+.auth-container .terms, .auth-container .remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-container .terms label, .auth-container .remember label {
+  margin-bottom: 0; /* Anular margen por defecto */
+}
+
+.auth-container input[type="checkbox"] {
+  width: auto;
+}
+
+.auth-container .switch, .auth-container p {
+  margin-top: 1rem;
+}
+
+.auth-container .switch a, .auth-container p a {
+  color: #25d366; /* Cambiado */
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* === Estilos para la Página de Perfil === */
+.btn-logout {
+  background-color: #d32f2f; /* Un color rojo para indicar una acción destructiva */
+  margin-top: 1rem;
+}
+.btn-logout:hover {
+  background-color: #b71c1c;
+}
+
+/* === Estilos para la Página del Carrito === */
+.cart-container { padding: 2rem; }
+.cart-items { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+.cart-item { display: flex; align-items: center; gap: 1rem; background-color: #fdf6d9; padding: 1rem; border-radius: 8px; border: 2px solid #000; } /* Cambiado */
+.cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
+.item-info { flex-grow: 1; }
+.item-info .price { color: #333; font-weight: bold; } /* Cambiado */
+.btn-remove { background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 0.9rem; }
+.cart-summary { text-align: right; }
+.cart-summary h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+.cart-actions { display: flex; justify-content: flex-end; gap: 1rem; }
