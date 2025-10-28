@@ -16,7 +16,7 @@ module.exports = function(config) {
     exclude: [
       'src/main.jsx'
     ],
-    exclude: [],
+   
     preprocessors: {},
     webpackMiddleware: {
       stats: 'errors-only'

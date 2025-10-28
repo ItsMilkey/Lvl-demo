@@ -24,8 +24,6 @@ function HomePage() {
           </Link>
         </div>
       </header>
-
-      {/* --- El resto del contenido de la página sigue igual --- */}
       
       {/* Sección de bienvenida */}
       <section className="highlight">
