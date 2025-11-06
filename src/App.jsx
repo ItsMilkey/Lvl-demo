@@ -9,6 +9,9 @@ import CommunityPage from './pages/CommunityPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import Admin from './pages/admin/Admin.jsx';
+import Users from './pages/admin/users.jsx';
+import Products from './pages/admin/products.jsx';
+import AdminReviews from './pages/admin/reviews.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import CartPage from './pages/CartPage.jsx';
@@ -31,6 +34,9 @@ function App() {
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+          <Route path="/admin/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+          <Route path="/admin/reviews" element={<ProtectedRoute><AdminReviews /></ProtectedRoute>} />
           <Route path="/carrito" element={<CartPage />} />
 
           {/* --- Ruta Protegida --- */}
