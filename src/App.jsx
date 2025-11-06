@@ -1,5 +1,5 @@
 // src/App.jsx
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
@@ -8,14 +8,17 @@ import ReferralsPage from './pages/ReferralsPage.jsx';
 import CommunityPage from './pages/CommunityPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import Admin from './pages/admin/Admin.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import CartPage from './pages/CartPage.jsx';
 
 function App() {
+  const location = useLocation();
+  const hideNavbar = location.pathname.startsWith('/admin');
   return (
     <div className="app-container">
-      <Navbar />
+      {!hideNavbar && <Navbar />}
       {/* Se añade el contenedor <main> para asegurar el layout correcto */}
       <main className="main-content">
         <Routes>
@@ -27,6 +30,7 @@ function App() {
           <Route path="/comunidad" element={<CommunityPage />} />
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/carrito" element={<CartPage />} />
 
           {/* --- Ruta Protegida --- */}

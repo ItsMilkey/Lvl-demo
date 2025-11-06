@@ -11,7 +11,16 @@ function LoginPage() {
     e.preventDefault();
     // En una app real, verificaríamos el email y contraseña.
     // Aquí, solo simulamos un login exitoso si los campos no están vacíos.
-    if(email && password) {
+    if (email && password) {
+      // Redirección especial para el administrador
+      if (email === 'admin@lvlup.com') {
+        alert('¡Inicio de sesión de administrador! Serás redirigido al panel de administración.');
+        // Guardamos la sesión del admin (simulado)
+        localStorage.setItem('usuarioActivo', JSON.stringify({ email }));
+        navigate('/admin'); // Redirige a adminPage (la crearemos después)
+        return;
+      }
+
       alert('¡Inicio de sesión exitoso! Serás redirigido a la página principal.');
       // Simulamos guardar la sesión del usuario en localStorage
       localStorage.setItem('usuarioActivo', JSON.stringify({ email: email }));
