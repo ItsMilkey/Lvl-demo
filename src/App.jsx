@@ -12,6 +12,7 @@ import Admin from './pages/admin/Admin.jsx';
 import Users from './pages/admin/users.jsx';
 import Products from './pages/admin/products.jsx';
 import AdminReviews from './pages/admin/reviews.jsx';
+import AdminReferrals from './pages/admin/referrals.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import CartPage from './pages/CartPage.jsx';
@@ -37,6 +38,7 @@ function App() {
           <Route path="/admin/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
           <Route path="/admin/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path="/admin/reviews" element={<ProtectedRoute><AdminReviews /></ProtectedRoute>} />
+          <Route path="/admin/referrals" element={<ProtectedRoute><AdminReferrals /></ProtectedRoute>} />
           <Route path="/carrito" element={<CartPage />} />
 
           {/* --- Ruta Protegida --- */}
