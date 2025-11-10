@@ -1,36 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Importamos useEffect
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Importamos axios
+
+// URL base de la API (asegúrate que el puerto 8080 sea el correcto)
+const API_URL = "http://localhost:8080/api/users";
 
 const Users = () => {
   const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([]); // El estado inicial ahora es un array vacío
 
-  const [users, setUsers] = useState([
-    { id: 1, name: "Usuario 1", email: "usuario1@example.com", password: "123456" },
-    { id: 2, name: "Usuario 2", email: "usuario2@example.com", password: "abcdef" },
-    { id: 3, name: "Usuario 3", email: "usuario3@example.com", password: "qwerty" },
-  ]);
+  // --- FUNCIONES CONECTADAS AL BACKEND ---
 
-  const handleAddUser = () => {
-    console.log("Agregar usuario");
+  /**
+   * Carga la lista de usuarios desde la API.
+   * El botón "Listar" ahora funciona como un "Refrescar".
+   */
+  const handleListUsers = async () => {
+    try {
+      const response = await axios.get(API_URL);
+      setUsers(response.data);
+      console.log("Usuarios cargados desde el backend.");
+    } catch (error) {
+      console.error("Error al listar usuarios:", error);
+      alert("Error: No se pudieron cargar los usuarios.");
+    }
   };
 
-  const handleDeleteUser = () => {
+  /**
+   * Carga los usuarios automáticamente la primera vez que el componente se renderiza.
+   */
+  useEffect(() => {
+    handleListUsers();
+  }, []); // El array vacío [] asegura que esto solo se ejecute una vez
+
+  /**
+   * Agrega un nuevo usuario.
+   * Pide los datos con prompts simples (puedes cambiar esto por un formulario/modal).
+   */
+  const handleAddUser = async () => {
+    const name = prompt("Ingresa el nombre del usuario:");
+    const email = prompt("Ingresa el email del usuario:");
+    const password = prompt("Ingresa la contraseña:");
+
+    // Verifica que el usuario no haya cancelado ningún prompt
+    if (!name || !email || !password) {
+      console.log("Operación de agregar cancelada.");
+      return;
+    }
+
+    const newUser = { name, email, password };
+
+    try {
+      await axios.post(API_URL, newUser);
+      alert("¡Usuario agregado con éxito!");
+      handleListUsers(); // Refresca la lista después de agregar
+    } catch (error) {
+      console.error("Error al agregar usuario:", error);
+      alert("Error: No se pudo agregar el usuario.");
+    }
+  };
+
+  /**
+   * Elimina el usuario que está actualmente seleccionado.
+   */
+  const handleDeleteUser = async () => {
     if (!selectedUser) {
       alert("Por favor selecciona un usuario para eliminar");
       return;
     }
-    setUsers(users.filter((user) => user.id !== selectedUser));
-    setSelectedUser(null);
+
+    // Pedimos confirmación antes de eliminar
+    if (window.confirm("¿Estás seguro de que quieres eliminar a este usuario?")) {
+      try {
+        await axios.delete(`${API_URL}/${selectedUser}`);
+        alert("Usuario eliminado con éxito.");
+        setSelectedUser(null); // Limpia la selección
+        handleListUsers(); // Refresca la lista después de eliminar
+      } catch (error) {
+        console.error("Error al eliminar usuario:", error);
+        alert("Error: No se pudo eliminar el usuario.");
+      }
+    }
   };
 
-  const handleListUsers = () => {
-    console.log("Listar usuarios");
-  };
-
+  /**
+   * Maneja la selección de un usuario en la tabla.
+   * (Esta función solo maneja estado local, no necesita API).
+   */
   const handleUserSelect = (userId) => {
     setSelectedUser(userId === selectedUser ? null : userId);
   };
+
+  // --- RENDERIZADO DEL COMPONENTE (JSX) ---
+  // (Tu código JSX original está perfecto y no necesita cambios)
 
   return (
     <div className="main-content" style={{ padding: "2rem" }}>
@@ -84,7 +147,7 @@ const Users = () => {
           }}
         >
           <button
-            onClick={handleListUsers}
+            onClick={handleListUsers} // Ahora funciona como "Refrescar"
             style={{
               background: "#2196f3",
               color: "#fff",
@@ -157,10 +220,18 @@ const Users = () => {
               }}
             >
               <tr>
-                <th style={{ padding: "16px", border: "2px solid #000" }}>ID Usuario</th>
-                <th style={{ padding: "16px", border: "2px solid #000" }}>Nombre</th>
-                <th style={{ padding: "16px", border: "2px solid #000" }}>Email</th>
-                <th style={{ padding: "16px", border: "2px solid #000" }}>Contraseña</th>
+                <th style={{ padding: "16px", border: "2px solid #000" }}>
+                  ID Usuario
+                </th>
+                <th style={{ padding: "16px", border: "2px solid #000" }}>
+                  Nombre
+                </th>
+                <th style={{ padding: "16px", border: "2px solid #000" }}>
+                  Email
+                </th>
+                <th style={{ padding: "16px", border: "2px solid #000" }}>
+                  Contraseña
+                </th>
               </tr>
             </thead>
 
@@ -187,7 +258,8 @@ const Users = () => {
                     {user.email}
                   </td>
                   <td style={{ padding: "12px" }}>
-                    {"*".repeat(user.password.length)}
+                    {/* Mostramos asteriscos para la contraseña */}
+                    {"*".repeat(8)}
                   </td>
                 </tr>
               ))}

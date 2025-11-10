@@ -1,57 +1,118 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // 1. IMPORTAMOS HOOKS
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // 2. IMPORTAMOS AXIOS
+
+// 3. DEFINIMOS LA RUTA DE LA API DE PRODUCTOS
+const API_URL = "http://localhost:8080/api/products";
 
 const Products = () => {
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]); // 4. INICIA VACÍO
+  const [showForm, setShowForm] = useState(false); // 5. ESTADO PARA MOSTRAR/OCULTAR FORMULARIO
+  
+  // 6. ESTADO PARA LOS DATOS DEL NUEVO PRODUCTO
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: 0,
+    image: "", // Aquí guardaremos el link (URL) de la imagen
+  });
 
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Catan",
-      price: "$29.990",
-      image: "/assets/productos/catan.png",
-    },
-    {
-      id: 2,
-      name: "Carcassonne",
-      price: "$24.990",
-      image: "/assets/productos/carcassonne.png",
-    },
-    {
-      id: 3,
-      name: "Controlador Inalámbrico Xbox Series X",
-      price: "$59.990",
-      image: "/assets/productos/xbox_controller.png",
-    },
-    {
-      id: 4,
-      name: "Audífonos Gamer HyperX Cloud II",
-      price: "$79.990",
-      image: "/assets/productos/hyperx.png",
-    },
-    {
-      id: 5,
-      name: "PlayStation 5",
-      price: "$549.990",
-      image: "/assets/productos/ps5.png",
-    },
-  ]);
+  // --- FUNCIONES DE FORMATO ---
+
+  /**
+   * Formatea un número a moneda local (Peso Chileno)
+   * Ej: 29990 -> "$29.990"
+   */
+  const formatPrice = (price) => {
+    if (typeof price !== 'number') {
+      return price; // Devuelve el valor original si no es un número
+    }
+    return new Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      minimumFractionDigits: 0, // Sin decimales
+    }).format(price);
+  };
+
+  // --- FUNCIONES DE API ---
+
+  /**
+   * Carga la lista de productos desde el backend
+   */
+  const handleListProducts = async () => {
+    try {
+      const response = await axios.get(API_URL);
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error al listar productos:", error);
+      alert("No se pudieron cargar los productos.");
+    }
+  };
+
+  /**
+   * Carga los productos al iniciar el componente
+   */
+  useEffect(() => {
+    handleListProducts();
+  }, []);
+
+  /**
+   * Maneja el cambio en los inputs del formulario
+   */
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct((prevProduct) => ({
+      ...prevProduct,
+      [name]: value,
+    }));
+  };
+
+  /**
+   * Maneja el envío del formulario para crear un producto
+   */
+  const handleAddProduct = async (e) => {
+    e.preventDefault(); // Evita que la página se recargue
+
+    // Preparamos el objeto a enviar
+    const productToSend = {
+      ...newProduct,
+      price: parseFloat(newProduct.price), // Aseguramos que el precio sea un número
+    };
+
+    try {
+      await axios.post(API_URL, productToSend);
+      alert("Producto agregado con éxito");
+      setNewProduct({ name: "", price: 0, image: "" }); // Limpia el formulario
+      setShowForm(false); // Oculta el formulario
+      handleListProducts(); // Refresca la lista
+    } catch (error) {
+      console.error("Error al agregar producto:", error);
+      alert("Error al guardar el producto.");
+    }
+  };
+
+  /**
+   * Elimina un producto
+   */
+  const handleDeleteProduct = async (id) => {
+    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+        alert("Producto eliminado.");
+        handleListProducts(); // Refresca la lista
+      } catch (error) {
+        console.error("Error al eliminar producto:", error);
+        alert("No se pudo eliminar el producto.");
+      }
+    }
+  };
 
   const handleEdit = (id) => {
     console.log("Editar producto:", id);
+    // Lógica de edición (abrir modal/formulario de edición)
   };
 
-  const handleDelete = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
-  };
-
-  const handleList = () => {
-    console.log("Listar productos");
-  };
-
-  const handleAdd = () => {
-    console.log("Agregar producto");
-  };
+  // --- RENDERIZADO DEL COMPONENTE ---
 
   return (
     <div
@@ -63,6 +124,7 @@ const Products = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        paddingTop: "6rem", // Espacio para el botón volver
       }}
     >
       {/* Botón Volver fijo */}
@@ -85,7 +147,7 @@ const Products = () => {
       <section
         style={{
           width: "90%",
-          maxWidth: "1600px", // ancho máximo amplio
+          maxWidth: "1600px",
           background: "#fffbea",
           border: "2px solid #000",
           borderRadius: "10px",
@@ -115,7 +177,7 @@ const Products = () => {
           }}
         >
           <button
-            onClick={handleList}
+            onClick={handleListProducts} // Refresca la lista
             style={{
               background: "#2196f3",
               color: "#fff",
@@ -129,7 +191,7 @@ const Products = () => {
           </button>
 
           <button
-            onClick={handleAdd}
+            onClick={() => setShowForm(!showForm)} // Muestra/oculta el formulario
             style={{
               background: "#25d366",
               color: "#fff",
@@ -139,11 +201,73 @@ const Products = () => {
               borderRadius: "6px",
             }}
           >
-            Agregar
+            {showForm ? "Cancelar" : "Agregar"}
           </button>
         </div>
 
-        {/* Tabla centrada y más ancha */}
+        {/* 7. FORMULARIO PARA AGREGAR PRODUCTO (CONDICIONAL) */}
+        {showForm && (
+          <form
+            onSubmit={handleAddProduct}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              margin: "0 auto 2rem auto",
+              padding: "1.5rem",
+              border: "2px solid #000",
+              borderRadius: "8px",
+              background: "#fdf6d9",
+              maxWidth: "600px",
+            }}
+          >
+            <h3 style={{ textAlign: "center", margin: 0, fontWeight: "bold" }}>
+              Nuevo Producto
+            </h3>
+            <input
+              type="text"
+              name="name"
+              placeholder="Nombre del Producto"
+              value={newProduct.name}
+              onChange={handleFormChange}
+              required
+              style={{ padding: "10px", border: "2px solid #000", borderRadius: "5px" }}
+            />
+            <input
+              type="number"
+              name="price"
+              placeholder="Precio (Ej: 29990)"
+              value={newProduct.price}
+              onChange={handleFormChange}
+              required
+              style={{ padding: "10px", border: "2px solid #000", borderRadius: "5px" }}
+            />
+            <input
+              type="text"
+              name="image"
+              placeholder="Link (URL) de la imagen"
+              value={newProduct.image}
+              onChange={handleFormChange}
+              required
+              style={{ padding: "10px", border: "2px solid #000", borderRadius: "5px" }}
+            />
+            <button
+              type="submit"
+              style={{
+                background: "#25d366",
+                color: "#fff",
+                border: "2px solid #000",
+                fontWeight: "bold",
+                padding: "12px",
+                borderRadius: "6px",
+              }}
+            >
+              Guardar Producto
+            </button>
+          </form>
+        )}
+
+        {/* Tabla de productos */}
         <div
           style={{
             border: "2px solid #000",
@@ -151,7 +275,7 @@ const Products = () => {
             overflow: "hidden",
             background: "#fff",
             width: "100%",
-            maxHeight: "450px", // menor altura
+            maxHeight: "450px",
             overflowY: "auto",
           }}
         >
@@ -187,7 +311,8 @@ const Products = () => {
             </thead>
 
             <tbody>
-              {products.map((product) => (
+              {/* 8. MAPEO DEFENSIVO */}
+              {Array.isArray(products) && products.map((product) => (
                 <tr
                   key={product.id}
                   style={{
@@ -202,11 +327,11 @@ const Products = () => {
                     {product.name}
                   </td>
                   <td style={{ padding: "10px", borderRight: "2px solid #000" }}>
-                    {product.price}
+                    {formatPrice(product.price)} {/* 9. PRECIO FORMATEADO */}
                   </td>
                   <td style={{ padding: "10px", borderRight: "2px solid #000" }}>
                     <img
-                      src={product.image}
+                      src={product.image} // 10. IMAGEN DESDE URL
                       alt={product.name}
                       style={{
                         width: "70px",
@@ -231,7 +356,7 @@ const Products = () => {
                       Editar
                     </button>
                     <button
-                      onClick={() => handleDelete(product.id)}
+                      onClick={() => handleDeleteProduct(product.id)} // 11. CONECTADO A API
                       style={{
                         background: "#d32f2f",
                         border: "2px solid #000",
