@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // 1. IMPORTAMOS AXIOS
+
+// 2. DEFINIMOS LA RUTA DE LA API
+const API_URL = 'http://localhost:8080/api/referrals';
 
 function AdminReferrals() {
   const navigate = useNavigate();
@@ -8,13 +12,26 @@ function AdminReferrals() {
   const [nuevoCodigo, setNuevoCodigo] = useState('');
   const [selectedId, setSelectedId] = useState(null);
 
+  // Estados para el texto de beneficios (se mantiene igual)
   const [benefitsText, setBenefitsText] = useState('');
   const [isEditingBenefits, setIsEditingBenefits] = useState(false);
 
-  useEffect(() => {
-    const storedCodigos = JSON.parse(localStorage.getItem('codigosReferidos')) || [];
-    setCodigos(storedCodigos);
+  // 3. FUNCIÓN PARA CARGAR CÓDIGOS DESDE LA API
+  const fetchCodes = async () => {
+    try {
+      const response = await axios.get(API_URL);
+      setCodigos(response.data);
+    } catch (error) {
+      console.error('Error al cargar los códigos:', error);
+      setCodigos([]); // En caso de error, seteamos un array vacío
+    }
+  };
 
+  useEffect(() => {
+    // 4. CARGAMOS LOS CÓDIGOS DESDE LA API
+    fetchCodes();
+
+    // 5. MANTENEMOS LA LÓGICA DE LOCALSTORAGE PARA EL TEXTO DE BENEFICIOS
     const storedBenefits = localStorage.getItem('benefitsText');
     if (storedBenefits) setBenefitsText(storedBenefits);
     else
@@ -23,41 +40,57 @@ function AdminReferrals() {
       );
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('codigosReferidos', JSON.stringify(codigos));
-  }, [codigos]);
+  // 6. ELIMINAMOS EL USEEFFECT QUE GUARDABA CÓDIGOS EN LOCALSTORAGE
 
+  // 7. MANTENEMOS EL USEEFFECT PARA EL TEXTO DE BENEFICIOS
   useEffect(() => {
     localStorage.setItem('benefitsText', benefitsText);
   }, [benefitsText]);
 
-  const handleAddCode = (e) => {
+  // 8. ACTUALIZAMOS EL MANEJADOR PARA AGREGAR CÓDIGOS
+  const handleAddCode = async (e) => {
     e.preventDefault();
     if (nuevoCodigo.trim() === '') {
       alert('⚠️ Ingresa un código válido.');
       return;
     }
 
-    const newCodeObj = { id: Date.now(), codigo: nuevoCodigo.trim().toUpperCase() };
-    setCodigos([...codigos, newCodeObj]);
-    setNuevoCodigo('');
+    const codeToSend = { codigo: nuevoCodigo.trim().toUpperCase() };
+
+    try {
+      await axios.post(API_URL, codeToSend);
+      setNuevoCodigo(''); // Limpia el input
+      fetchCodes(); // Refresca la lista desde la API
+    } catch (error) {
+      console.error('Error al agregar el código:', error);
+      alert('No se pudo guardar el código.');
+    }
   };
 
-  const handleDelete = () => {
+  // 9. ACTUALIZAMOS EL MANEJADOR PARA ELIMINAR CÓDIGOS
+  const handleDelete = async () => {
     if (!selectedId) {
       alert('Selecciona un código para eliminar.');
       return;
     }
 
-    const updated = codigos.filter((c) => c.id !== selectedId);
-    setCodigos(updated);
-    setSelectedId(null);
+    try {
+      await axios.delete(`${API_URL}/${selectedId}`);
+      setSelectedId(null); // Limpia la selección
+      fetchCodes(); // Refresca la lista desde la API
+    } catch (error) {
+      console.error('Error al eliminar el código:', error);
+      alert('No se pudo eliminar el código.');
+    }
   };
 
+  // Esta función es local y se mantiene igual
   const handleSelect = (id) => {
     setSelectedId(id === selectedId ? null : id);
   };
 
+  // ... TODO TU CÓDIGO JSX DE "RETURN" VA AQUÍ ...
+  // (No ha cambiado absolutamente nada, así que pégalo tal cual lo tenías)
   return (
     <div
       className="main-content"
@@ -67,8 +100,8 @@ function AdminReferrals() {
         alignItems: 'flex-start',
         minHeight: '100vh',
         background: '#fffbea',
-        paddingTop: '0rem', // antes era 6rem → subimos
-        paddingLeft: '10rem', // mueve todo hacia la derecha
+        paddingTop: '0rem', 
+        paddingLeft: '10rem', 
       }}
     >
       {/* Botón volver */}
@@ -121,7 +154,7 @@ function AdminReferrals() {
         >
           <button
             onClick={handleAddCode}
-            type="button"
+            type="button" // Cambiado para que no haga submit del form
             style={{
               background: '#25d366',
               border: '2px solid #000',
@@ -210,6 +243,7 @@ function AdminReferrals() {
           </ul>
         </div>
 
+        {/* Esta sección de beneficios se mantiene 100% igual */}
         <section
           style={{
             background: '#fffcea',
