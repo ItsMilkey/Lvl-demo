@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios"; // 2. IMPORTAMOS AXIOS
 
 // 3. DEFINIMOS LA RUTA DE LA API DE PRODUCTOS
-const API_URL = "http://localhost:8080/api/products";
+const API_URL = process.env.VITE_API_URL + "/api/products";
 
 const Products = () => {
   const navigate = useNavigate();

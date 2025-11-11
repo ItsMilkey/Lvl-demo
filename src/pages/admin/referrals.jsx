@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // 1. IMPORTAMOS AXIOS
 
 // 2. DEFINIMOS LA RUTA DE LA API
-const API_URL = 'http://localhost:8080/api/referrals';
+const API_URL = import.meta.env.VITE_API_URL + '/api/referrals';
 
 function AdminReferrals() {
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios"; // Importamos axios
 
 // URL base de la API (asegúrate que el puerto 8080 sea el correcto)
-const API_URL = "http://localhost:8080/api/users";
+const API_URL = import.meta.env.VITE_API_URL + "/api/users";
 
 const Users = () => {
   const navigate = useNavigate();
