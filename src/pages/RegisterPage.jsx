@@ -1,6 +1,10 @@
 // src/pages/RegisterPage.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // 1. IMPORTAMOS AXIOS
+
+// 2. DEFINIMOS LA RUTA DE LA API DE AUTENTICACIÓN
+const AUTH_URL = process.env.VITE_API_URL + '/api/auth';
 
 function RegisterPage() {
   const navigate = useNavigate(); // Hook para redirigir al usuario
@@ -15,23 +19,19 @@ function RegisterPage() {
     terms: false,
   });
 
-  // Helpers de validación
+  // --- Tus funciones de validación (no cambian) ---
   const isValidEmail = (email) => {
-    // RFC-like simple regex (no perfecta pero suficiente para validación básica)
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
-
   const isStrongPassword = (pwd) => {
-    // Al menos 8 caracteres, una mayúscula, una minúscula, un número y un caracter especial
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(pwd);
   };
-
   const isValidUsername = (u) => {
-    // 3-20 chars, letras, números y guion bajo
     return /^[a-zA-Z0-9_]{3,20}$/.test(u);
   };
+  // ---------------------------------------------
 
-  // Manejador para actualizar el estado cuando el usuario escribe
+  // Manejador para actualizar el estado (no cambia)
   const handleChange = (e) => {
     const { id, value, type, checked } = e.target;
     setFormData(prevData => ({
@@ -40,11 +40,11 @@ function RegisterPage() {
     }));
   };
 
-  // Manejador para el envío del formulario
-  const handleSubmit = (e) => {
+  // 3. MANEJADOR PARA EL ENVÍO DEL FORMULARIO (ACTUALIZADO A ASYNC)
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Recolectar errores para mostrarlos todos juntos en una alerta en español
+    // Recolectar errores para mostrarlos todos juntos
     const errors = [];
 
     const username = (formData.username || '').trim();
@@ -53,21 +53,17 @@ function RegisterPage() {
     const confirmPassword = formData.confirmPassword || '';
     const birthdate = formData.birthdate;
 
-    // Validaciones de usuario
+    // --- Validaciones (no cambian) ---
     if (!username) {
       errors.push('El usuario es obligatorio.');
     } else if (!isValidUsername(username)) {
       errors.push('El usuario debe tener entre 3 y 20 caracteres y solo puede contener letras, números y guion bajo (_).');
     }
-
-    // Validación de email
     if (!email) {
       errors.push('El correo electrónico es obligatorio.');
     } else if (!isValidEmail(email)) {
       errors.push('El correo electrónico no tiene un formato válido.');
     }
-
-    // Validación de contraseñas
     if (!password) {
       errors.push('La contraseña es obligatoria.');
     }
@@ -77,8 +73,6 @@ function RegisterPage() {
     if (password && !isStrongPassword(password)) {
       errors.push('La contraseña debe tener al menos 8 caracteres e incluir mayúsculas, minúsculas, números y caracteres especiales.');
     }
-
-    // Validación fecha de nacimiento
     if (!birthdate) {
       errors.push('Por favor ingresa tu fecha de nacimiento.');
     } else {
@@ -101,28 +95,52 @@ function RegisterPage() {
         }
       }
     }
-
-    // Términos
     if (!formData.terms) {
       errors.push('Debes aceptar los términos y condiciones.');
     }
+    // --- Fin de Validaciones ---
 
     if (errors.length > 0) {
-      // Mostrar todas las validaciones fallidas en una sola alerta en español
       alert(errors.join('\n'));
       return;
     }
 
-    // Si todo es válido...
-    alert(`¡Registro exitoso para ${username}! Serás redirigido para iniciar sesión.`);
-    // Aquí normalmente enviaríamos los datos al servidor. Por ahora, simulamos y redirigimos.
-    navigate('/login');
+    // 4. SI LAS VALIDACIONES PASAN, LLAMAMOS AL BACKEND
+    
+    // Preparamos los datos para el RegisterDTO (solo name, email, password)
+    const registerData = {
+      name: username, // Mapeamos 'username' del form a 'name' del DTO
+      email: email,
+      password: password
+    };
+
+    try {
+      // 5. LLAMAMOS AL ENDPOINT DE REGISTRO
+      const response = await axios.post(`${AUTH_URL}/register`, registerData);
+      
+      // (Opcional: El backend nos devuelve el token, pero no lo usaremos aquí)
+      console.log('Respuesta de registro:', response.data); 
+
+      // 6. Si todo es válido...
+      alert(`¡Registro exitoso para ${username}! Serás redirigido para iniciar sesión.`);
+      navigate('/login'); // Redirigimos al login
+
+    } catch (error) {
+      // 7. SI EL BACKEND DEVUELVE UN ERROR
+      console.error("Error en el registro:", error);
+      if (error.response && error.response.status === 500) {
+        // El 'RuntimeException("El email ya está en uso")' del backend llega como un error 500
+        alert('Error al registrar: El correo electrónico ya está en uso.');
+      } else {
+        alert('Ocurrió un error inesperado durante el registro.');
+      }
+    }
   };
 
   return (
     <div className="auth-container">
       <h1>Registro</h1>
-  <form noValidate onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit}>
         <label htmlFor="username">Usuario</label>
         <input type="text" id="username" placeholder="Tu usuario" value={formData.username} onChange={handleChange} required />
 
