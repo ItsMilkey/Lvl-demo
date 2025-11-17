@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// 3. DEFINIMOS LA RUTA DE LA API (Corregido a import.meta.env)
+// 3. DEFINIMOS LA RUTA DE LA API
 const API_URL = import.meta.env.VITE_API_URL + "/api/products";
 
 // --- FUNCIÓN HELPER PARA LOS HEADERS DE AUTORIZACIÓN ---
@@ -25,7 +25,7 @@ const Products = () => {
   // Estado para los datos del nuevo producto
   const [newProduct, setNewProduct] = useState({
     name: "",
-    price: "", // Inicializamos como string vacío para mejor control del input
+    price: "",
     image: "", 
   });
 
@@ -41,14 +41,12 @@ const Products = () => {
 
   // --- FUNCIONES DE API ---
 
-  // Listar es público, no requiere token (según tu SecurityConfig)
   const handleListProducts = async () => {
     try {
       const response = await axios.get(API_URL);
       setProducts(response.data);
     } catch (error) {
       console.error("Error al listar productos:", error);
-      // No mostramos alerta si está vacío, solo log
     }
   };
 
@@ -64,11 +62,8 @@ const Products = () => {
     }));
   };
 
-  // Agregar requiere TOKEN
   const handleAddProduct = async (e) => {
     e.preventDefault();
-
-    // Validación simple
     if (!newProduct.name || !newProduct.price || !newProduct.image) {
         alert("Por favor completa todos los campos.");
         return;
@@ -80,9 +75,7 @@ const Products = () => {
     };
 
     try {
-      // Enviamos Headers de Auth
       await axios.post(API_URL, productToSend, getAuthHeaders());
-      
       alert("Producto agregado con éxito");
       setNewProduct({ name: "", price: "", image: "" });
       setShowForm(false);
@@ -93,11 +86,9 @@ const Products = () => {
     }
   };
 
-  // Eliminar requiere TOKEN
   const handleDeleteProduct = async (id) => {
     if (window.confirm("¿Estás seguro de eliminar este producto?")) {
       try {
-        // Enviamos Headers de Auth
         await axios.delete(`${API_URL}/${id}`, getAuthHeaders());
         alert("Producto eliminado.");
         handleListProducts();
@@ -118,13 +109,15 @@ const Products = () => {
     <div
       className="main-content"
       style={{
-        minHeight: "100vh",
-        background: "#fdf6d9",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingTop: "4rem",
-        paddingBottom: "4rem",
+        // ESTILOS CORREGIDOS (Igual que AdminReferrals)
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start', // Alineación superior
+        minHeight: '100vh',
+        background: '#fffbea',
+        paddingTop: '2rem', // Espacio arriba
+        paddingLeft: '10rem', // <--- EL FIX CLAVE (Desplaza el contenido a la derecha)
+        paddingBottom: '4rem'
       }}
     >
       {/* Botón Volver fijo */}
@@ -144,15 +137,17 @@ const Products = () => {
         Volver
       </button>
 
+      {/* Contenedor de Sección */}
       <section
         style={{
-          width: "90%",
-          maxWidth: "1200px",
-          background: "#fffbea",
-          border: "2px solid #000",
-          borderRadius: "10px",
-          padding: "2rem",
-          boxShadow: "6px 6px 0px rgba(0,0,0,0.8)", // Sombra estilo retro/comic
+            // Ajustamos el ancho para que se vea bien con el padding
+            width: '85%', 
+            maxWidth: '1200px',
+            background: '#fffdf0',
+            border: '2px solid #000',
+            borderRadius: '10px',
+            padding: '2.5rem',
+            boxShadow: '4px 4px 8px rgba(0,0,0,0.15)',
         }}
       >
         <h1
@@ -173,14 +168,14 @@ const Products = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between", // Separados a los extremos
+            justifyContent: "space-between",
             alignItems: "center",
             marginBottom: "2rem",
-            borderBottom: "2px solid #eee",
+            borderBottom: "2px solid #ddd",
             paddingBottom: "1rem"
           }}
         >
-          <h3 style={{margin: 0, fontSize: "1.2rem", color: "#555"}}>
+          <h3 style={{margin: 0, fontSize: "1.2rem", color: "#555", fontWeight: "bold"}}>
             Total: {products.length} productos
           </h3>
 
@@ -229,7 +224,8 @@ const Products = () => {
             marginBottom: "2rem",
             display: "flex",
             gap: "2rem",
-            alignItems: "flex-start"
+            alignItems: "flex-start",
+            boxShadow: "inset 0 0 10px rgba(0,0,0,0.05)"
           }}>
              {/* Previsualización de Imagen */}
              <div style={{
@@ -241,7 +237,8 @@ const Products = () => {
                  alignItems: "center",
                  justifyContent: "center",
                  overflow: "hidden",
-                 background: "#f9f9f9"
+                 background: "#f9f9f9",
+                 flexShrink: 0
              }}>
                  {newProduct.image ? (
                      <img src={newProduct.image} alt="Vista previa" style={{width: "100%", height: "100%", objectFit: "cover"}} />
@@ -260,22 +257,20 @@ const Products = () => {
                     placeholder="Ej: PC Gamer Ultra"
                     value={newProduct.name}
                     onChange={handleFormChange}
-                    style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px" }}
+                    style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px", background: "#fffbea" }}
                     />
                 </div>
                 
-                <div style={{display: 'flex', gap: '1rem'}}>
-                    <div style={{flex: 1}}>
-                        <label style={{display: "block", fontWeight: "bold", marginBottom: "5px"}}>Precio (CLP)</label>
-                        <input
-                        type="number"
-                        name="price"
-                        placeholder="Ej: 50000"
-                        value={newProduct.price}
-                        onChange={handleFormChange}
-                        style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px" }}
-                        />
-                    </div>
+                <div>
+                     <label style={{display: "block", fontWeight: "bold", marginBottom: "5px"}}>Precio (CLP)</label>
+                     <input
+                     type="number"
+                     name="price"
+                     placeholder="Ej: 50000"
+                     value={newProduct.price}
+                     onChange={handleFormChange}
+                     style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px", background: "#fffbea" }}
+                     />
                 </div>
 
                 <div>
@@ -286,7 +281,7 @@ const Products = () => {
                     placeholder="https://..."
                     value={newProduct.image}
                     onChange={handleFormChange}
-                    style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px" }}
+                    style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px", background: "#fffbea" }}
                     />
                 </div>
 
@@ -301,7 +296,8 @@ const Products = () => {
                     padding: "12px",
                     borderRadius: "6px",
                     cursor: "pointer",
-                    fontSize: "1rem"
+                    fontSize: "1rem",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
                 }}
                 >
                 Guardar en Base de Datos
@@ -356,13 +352,14 @@ const Products = () => {
                         border: "1px solid #ccc", 
                         borderRadius: "6px",
                         overflow: "hidden",
-                        background: "#f0f0f0"
+                        background: "#f0f0f0",
+                        flexShrink: 0
                     }}>
                          <img
                             src={product.image}
                             alt={product.name}
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                            onError={(e) => {e.target.src='https://via.placeholder.com/60?text=IMG'}} // Fallback si la imagen falla
+                            onError={(e) => {e.target.src='https://via.placeholder.com/60?text=IMG'}} 
                         />
                     </div>
                     <div>
