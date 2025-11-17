@@ -1,9 +1,25 @@
+// src/pages/admin/referrals.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // 1. IMPORTAMOS AXIOS
 
 // 2. DEFINIMOS LA RUTA DE LA API
 const API_URL = import.meta.env.VITE_API_URL + '/api/referrals';
+
+// --- 1. FUNCIÓN HELPER PARA LOS HEADERS DE AUTORIZACIÓN ---
+// (Igual que en Users.jsx, esto adjunta el token a la petición)
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No se encontró el token de autenticación.");
+    return {};
+  }
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+};
 
 function AdminReferrals() {
   const navigate = useNavigate();
@@ -19,7 +35,8 @@ function AdminReferrals() {
   // 3. FUNCIÓN PARA CARGAR CÓDIGOS DESDE LA API
   const fetchCodes = async () => {
     try {
-      const response = await axios.get(API_URL);
+      // --- AÑADIMOS HEADERS AL GET ---
+      const response = await axios.get(API_URL, getAuthHeaders());
       setCodigos(response.data);
     } catch (error) {
       console.error('Error al cargar los códigos:', error);
@@ -40,8 +57,6 @@ function AdminReferrals() {
       );
   }, []);
 
-  // 6. ELIMINAMOS EL USEEFFECT QUE GUARDABA CÓDIGOS EN LOCALSTORAGE
-
   // 7. MANTENEMOS EL USEEFFECT PARA EL TEXTO DE BENEFICIOS
   useEffect(() => {
     localStorage.setItem('benefitsText', benefitsText);
@@ -58,12 +73,14 @@ function AdminReferrals() {
     const codeToSend = { codigo: nuevoCodigo.trim().toUpperCase() };
 
     try {
-      await axios.post(API_URL, codeToSend);
+      // --- AÑADIMOS HEADERS AL POST ---
+      await axios.post(API_URL, codeToSend, getAuthHeaders());
       setNuevoCodigo(''); // Limpia el input
       fetchCodes(); // Refresca la lista desde la API
+      alert('Código agregado exitosamente.');
     } catch (error) {
       console.error('Error al agregar el código:', error);
-      alert('No se pudo guardar el código.');
+      alert('No se pudo guardar el código. Verifica que no esté repetido.');
     }
   };
 
@@ -75,9 +92,11 @@ function AdminReferrals() {
     }
 
     try {
-      await axios.delete(`${API_URL}/${selectedId}`);
+      // --- AÑADIMOS HEADERS AL DELETE ---
+      await axios.delete(`${API_URL}/${selectedId}`, getAuthHeaders());
       setSelectedId(null); // Limpia la selección
       fetchCodes(); // Refresca la lista desde la API
+      alert('Código eliminado exitosamente.');
     } catch (error) {
       console.error('Error al eliminar el código:', error);
       alert('No se pudo eliminar el código.');
@@ -90,7 +109,6 @@ function AdminReferrals() {
   };
 
   // ... TODO TU CÓDIGO JSX DE "RETURN" VA AQUÍ ...
-  // (No ha cambiado absolutamente nada, así que pégalo tal cual lo tenías)
   return (
     <div
       className="main-content"
@@ -154,7 +172,7 @@ function AdminReferrals() {
         >
           <button
             onClick={handleAddCode}
-            type="button" // Cambiado para que no haga submit del form
+            type="button" 
             style={{
               background: '#25d366',
               border: '2px solid #000',
@@ -243,7 +261,7 @@ function AdminReferrals() {
           </ul>
         </div>
 
-        {/* Esta sección de beneficios se mantiene 100% igual */}
+        {/* Sección de beneficios */}
         <section
           style={{
             background: '#fffcea',
