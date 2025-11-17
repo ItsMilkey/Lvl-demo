@@ -115,7 +115,7 @@ const Products = () => {
         background: '#fffbea',
         paddingTop: '2rem',
         // --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
-        paddingLeft: '30rem', // Aumentado de 10rem a 17rem para empujarlo a la derecha
+        paddingLeft: '23rem', // Aumentado de 10rem a 17rem para empujarlo a la derecha
         paddingBottom: '4rem'
       }}
     >
