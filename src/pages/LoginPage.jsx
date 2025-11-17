@@ -4,8 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; // 1. IMPORTAMOS AXIOS
 
 // 2. DEFINIMOS LA RUTA DE LA API DE AUTENTICACIÓN
-// (Usando el 'process.env' que configuramos para Render)
-const AUTH_URL = process.env.VITE_API_URL + '/api/auth';
+const AUTH_URL = import.meta.env.VITE_API_URL + '/api/auth'; // <-- ¡ESTA ES LA LÍNEA CORREGIDA!
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -24,18 +23,19 @@ function LoginPage() {
 
     try {
       // 5. LLAMAMOS AL ENDPOINT DE LOGIN
+      // (Ahora sí usará la URL correcta de tu backend de Java)
       const response = await axios.post(`${AUTH_URL}/login`, loginData);
 
       // 6. SI EL LOGIN ES EXITOSO (TENEMOS UN TOKEN Y ROL)
       const { token, role } = response.data;
 
       // 7. GUARDAMOS EL TOKEN Y EL ROL EN LOCALSTORAGE
-      // (El backend se encargará de verificar este token en las rutas protegidas)
+      // (Esto es lo que leerá tu ProtectedRoute)
       localStorage.setItem('token', token);
-      localStorage.setItem('role', role); // <-- CAMBIO AÑADIDO AQUÍ
+      localStorage.setItem('role', role); 
       
       // 8. LÓGICA DE REDIRECCIÓN BASADA EN EL ROL (DEVUELTO POR EL BACKEND)
-      // (Ya no simulamos con 'admin@lvlup.com')
+      // (Esta lógica ya era perfecta)
       if (role === 'ROLE_ADMIN') {
         alert('¡Bienvenido Administrador!');
         navigate('/admin'); // Redirige al panel de admin
@@ -47,7 +47,7 @@ function LoginPage() {
     } catch (error) {
       // 9. SI EL LOGIN FALLA (401, 403, 500, etc.)
       console.error("Error en el inicio de sesión:", error);
-      // Usamos un mensaje genérico por seguridad
+      // El backend (Spring Security) devolverá un error 401 o 403 si los datos son incorrectos
       alert('Error: Email o contraseña incorrectos.');
     }
   };
