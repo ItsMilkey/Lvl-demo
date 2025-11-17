@@ -5,7 +5,7 @@ import axios from 'axios'; // 1. IMPORTAMOS AXIOS
 
 // 2. DEFINIMOS LA RUTA DE LA API DE AUTENTICACIÓN
 // (Esta ruta es PÚBLICA gracias a tu SecurityConfig)
-const AUTH_URL = process.env.VITE_API_URL + '/api/auth';
+const AUTH_URL = import.meta.env.VITE_API_URL + '/api/auth'; // <-- ¡CORREGIDO!
 
 function RegisterPage() {
   const navigate = useNavigate(); // Hook para redirigir al usuario
@@ -117,6 +117,7 @@ function RegisterPage() {
 
     try {
       // 5. LLAMAMOS AL ENDPOINT DE REGISTRO (PÚBLICO)
+      // Ahora AUTH_URL tendrá la URL correcta de tu backend de Java
       const response = await axios.post(`${AUTH_URL}/register`, registerData);
       
       // El backend nos devuelve el token Y el rol (ROLE_ADMIN si es el primero)
@@ -129,10 +130,15 @@ function RegisterPage() {
     } catch (error) {
       // 7. SI EL BACKEND DEVUELVE UN ERROR
       console.error("Error en el registro:", error);
-      if (error.response && error.response.status === 500) {
+      
+      // AHORA SÍ VEREMOS ERRORES REALES DEL BACKEND
+      if (error.response && (error.response.status === 500 || error.response.status === 400)) {
         // El 'RuntimeException("El email ya está en uso")' del backend llega como un error 500
-        alert('Error al registrar: El correo electrónico ya está en uso.');
-      } else {
+         alert('Error al registrar: El correo electrónico ya está en uso.');
+      } else if (error.code === "ERR_NETWORK") {
+         alert('Error de red. ¿Está el backend de Java corriendo y accesible?');
+      }
+      else {
         alert('Ocurrió un error inesperado durante el registro.');
       }
     }
