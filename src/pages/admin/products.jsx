@@ -40,7 +40,6 @@ const Products = () => {
   };
 
   // --- FUNCIONES DE API ---
-
   const handleListProducts = async () => {
     try {
       const response = await axios.get(API_URL);
@@ -109,14 +108,14 @@ const Products = () => {
     <div
       className="main-content"
       style={{
-        // ESTILOS CORREGIDOS (Igual que AdminReferrals)
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'flex-start', // Alineación superior
+        alignItems: 'flex-start',
         minHeight: '100vh',
         background: '#fffbea',
-        paddingTop: '2rem', // Espacio arriba
-        paddingLeft: '10rem', // <--- EL FIX CLAVE (Desplaza el contenido a la derecha)
+        paddingTop: '2rem',
+        // --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
+        paddingLeft: '17rem', // Aumentado de 10rem a 17rem para empujarlo a la derecha
         paddingBottom: '4rem'
       }}
     >
@@ -140,8 +139,8 @@ const Products = () => {
       {/* Contenedor de Sección */}
       <section
         style={{
-            // Ajustamos el ancho para que se vea bien con el padding
-            width: '85%', 
+            // Ajustamos el ancho para que se vea bien centrado en el espacio restante
+            width: '80%', 
             maxWidth: '1200px',
             background: '#fffdf0',
             border: '2px solid #000',
