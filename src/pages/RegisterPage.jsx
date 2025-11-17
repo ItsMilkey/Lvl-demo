@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; // 1. IMPORTAMOS AXIOS
 
 // 2. DEFINIMOS LA RUTA DE LA API DE AUTENTICACIÓN
+// (Esta ruta es PÚBLICA gracias a tu SecurityConfig)
 const AUTH_URL = process.env.VITE_API_URL + '/api/auth';
 
 function RegisterPage() {
@@ -53,7 +54,7 @@ function RegisterPage() {
     const confirmPassword = formData.confirmPassword || '';
     const birthdate = formData.birthdate;
 
-    // --- Validaciones (no cambian) ---
+    // --- Validaciones (Tus validaciones se mantienen) ---
     if (!username) {
       errors.push('El usuario es obligatorio.');
     } else if (!isValidUsername(username)) {
@@ -115,10 +116,10 @@ function RegisterPage() {
     };
 
     try {
-      // 5. LLAMAMOS AL ENDPOINT DE REGISTRO
+      // 5. LLAMAMOS AL ENDPOINT DE REGISTRO (PÚBLICO)
       const response = await axios.post(`${AUTH_URL}/register`, registerData);
       
-      // (Opcional: El backend nos devuelve el token, pero no lo usaremos aquí)
+      // El backend nos devuelve el token Y el rol (ROLE_ADMIN si es el primero)
       console.log('Respuesta de registro:', response.data); 
 
       // 6. Si todo es válido...
@@ -137,6 +138,7 @@ function RegisterPage() {
     }
   };
 
+  // --- TU JSX NO CAMBIA ---
   return (
     <div className="auth-container">
       <h1>Registro</h1>
