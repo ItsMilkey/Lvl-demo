@@ -34,14 +34,34 @@ function App() {
           <Route path="/comunidad" element={<CommunityPage />} />
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-          <Route path="/admin/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-          <Route path="/admin/reviews" element={<ProtectedRoute><AdminReviews /></ProtectedRoute>} />
-          <Route path="/admin/referrals" element={<ProtectedRoute><AdminReferrals /></ProtectedRoute>} />
-          <Route path="/carrito" element={<CartPage />} />
 
-          {/* --- Ruta Protegida --- */}
+          {/* --- Rutas de Admin (SOLO ROLE_ADMIN) --- */}
+          <Route 
+            path="/admin" 
+            element={<ProtectedRoute role="ROLE_ADMIN"><Admin /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/admin/users" 
+            element={<ProtectedRoute role="ROLE_ADMIN"><Users /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/admin/products" 
+            element={<ProtectedRoute role="ROLE_ADMIN"><Products /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/admin/reviews" 
+            element={<ProtectedRoute role="ROLE_ADMIN"><AdminReviews /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/admin/referrals" 
+            element={<ProtectedRoute role="ROLE_ADMIN"><AdminReferrals /></ProtectedRoute>} 
+          />
+
+          {/* --- Rutas de Usuario (Cualquier usuario logueado) --- */}
+          <Route 
+            path="/carrito" 
+            element={<ProtectedRoute><CartPage /></ProtectedRoute>} 
+          />
           <Route
             path="/perfil"
             element={

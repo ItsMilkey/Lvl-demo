@@ -29,9 +29,10 @@ function LoginPage() {
       // 6. SI EL LOGIN ES EXITOSO (TENEMOS UN TOKEN Y ROL)
       const { token, role } = response.data;
 
-      // 7. GUARDAMOS EL TOKEN EN LOCALSTORAGE
+      // 7. GUARDAMOS EL TOKEN Y EL ROL EN LOCALSTORAGE
       // (El backend se encargará de verificar este token en las rutas protegidas)
       localStorage.setItem('token', token);
+      localStorage.setItem('role', role); // <-- CAMBIO AÑADIDO AQUÍ
       
       // 8. LÓGICA DE REDIRECCIÓN BASADA EN EL ROL (DEVUELTO POR EL BACKEND)
       // (Ya no simulamos con 'admin@lvlup.com')
