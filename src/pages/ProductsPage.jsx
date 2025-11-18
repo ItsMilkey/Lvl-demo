@@ -1,76 +1,125 @@
 // src/pages/ProductsPage.jsx
-import { useContext, useState, useMemo } from 'react'; // 1. Importar hooks
-import { CartContext } from '../context/CartContext'; // 2. Importar el contexto
-import productos from '../data/products.js';
+import { useContext, useState, useEffect, useMemo } from 'react'; 
+import { CartContext } from '../context/CartContext'; 
+import axios from 'axios'; // Importamos Axios
 import './products.css';
 
+// URL de la API (Usamos la variable de entorno correcta)
+const API_URL = import.meta.env.VITE_API_URL + '/api/products';
+
 function ProductsPage() {
-  const { agregarAlCarrito } = useContext(CartContext); // 3. Obtener la función
+  const { agregarAlCarrito } = useContext(CartContext); 
+  
+  // Estado para los productos que vienen del backend
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Estado para búsqueda y categoría
+  // Estado para búsqueda
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('all');
 
-  // Lista de categorías única (incluye 'all')
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(productos.map(p => p.categoria)));
-    return ['all', ...cats];
+  // --- CARGAR PRODUCTOS DESDE EL BACKEND ---
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(API_URL);
+        // El backend devuelve un array de objetos: { id, name, price, image }
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
-  // Productos filtrados por categoría y término de búsqueda
+  // --- FILTRADO POR BÚSQUEDA ---
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return productos.filter(p => {
-      const matchesCategory = category === 'all' ? true : p.categoria === category;
-      const matchesSearch = term === '' ? true : (
-        p.nombre.toLowerCase().includes(term) ||
-        (p.descripcion && p.descripcion.toLowerCase().includes(term))
+    if (!term) return products;
+
+    return products.filter(p => 
+      p.name.toLowerCase().includes(term)
+    );
+  }, [search, products]);
+
+  // Helper para formatear precio
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  // Helper para adaptar el producto al formato que espera el carrito
+  // Tu contexto de carrito probablemente espera { codigo, nombre, precio, img }
+  // Pero el backend devuelve { id, name, price, image }
+  const handleAddToCart = (productoBackend) => {
+    const productoAdaptado = {
+        codigo: productoBackend.id, // Adaptamos id -> codigo
+        nombre: productoBackend.name, // Adaptamos name -> nombre
+        precio: productoBackend.price, 
+        img: productoBackend.image // Adaptamos image -> img
+    };
+    agregarAlCarrito(productoAdaptado);
+  };
+
+  if (loading) {
+      return (
+        <div style={{textAlign: 'center', padding: '4rem', fontSize: '1.5rem'}}>
+            Cargando catálogo...
+        </div>
       );
-      return matchesCategory && matchesSearch;
-    });
-  }, [search, category]);
+  }
 
   return (
     <>
       <header className="topbar">
         <h1>Catálogo de Productos</h1>
-        <input
-          id="searchBar"
-          type="text"
-          placeholder="Buscar productos..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+        <div style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
+            <input
+            id="searchBar"
+            type="text"
+            placeholder="Buscar productos..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{maxWidth: '500px'}} 
+            />
+        </div>
       </header>
 
       <section>
-
-        {/* Botones de categoría */}
-        <div className="category-grid">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              className={`category-btn ${category === cat ? 'active' : ''}`}
-              onClick={() => setCategory(cat)}
-              data-category={cat}
-            >
-              {cat === 'all' ? 'Todos' : cat}
-            </button>
-          ))}
-        </div>
-
-  {/* Grid de productos filtrados */}
-  <div id="productGrid" className="product-grid" style={{ marginTop: 20 }}>
-          {filtered.map(p => (
-            <div key={p.codigo} className="product-card">
-              <img src={p.img} alt={p.nombre} />
-              <h3>{p.nombre}</h3>
-              <p className="price">${p.precio.toLocaleString('es-CL')}</p>
-              <button onClick={() => agregarAlCarrito(p)} className="btn-add">
-                Agregar al Carrito
-              </button>
-            </div>
-          ))}
+        {/* Grid de productos filtrados */}
+        <div id="productGrid" className="product-grid" style={{ marginTop: 40 }}>
+          {filtered.length > 0 ? (
+            filtered.map(p => (
+                <div key={p.id} className="product-card">
+                <div className="image-container" style={{height: '200px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <img 
+                        src={p.image} 
+                        alt={p.name} 
+                        style={{maxHeight: '100%', objectFit: 'contain'}}
+                        onError={(e) => {e.target.src='https://via.placeholder.com/300?text=Sin+Imagen'}}
+                    />
+                </div>
+                <h3>{p.name}</h3>
+                <p className="price">{formatPrice(p.price)}</p>
+                
+                <button 
+                    onClick={() => handleAddToCart(p)} 
+                    className="btn-add"
+                >
+                    Agregar al Carrito
+                </button>
+                </div>
+            ))
+          ) : (
+              <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: '#666'}}>
+                  No se encontraron productos que coincidan con tu búsqueda.
+              </div>
+          )}
         </div>
       </section>
     </>
