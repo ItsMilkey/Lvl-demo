@@ -1,60 +1,87 @@
+// src/pages/admin/reviews.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-// Página de administración de reseñas
+// 1. Configuración de API y Auth
+const API_URL = import.meta.env.VITE_API_URL + '/api/reviews';
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return {};
+  return { headers: { Authorization: `Bearer ${token}` } };
+};
+
 function AdminReviews() {
   const navigate = useNavigate();
   const nameRef = useRef(null);
 
+  // Estados
   const [reseñas, setReseñas] = useState([]);
   const [nombre, setNombre] = useState('');
   const [estrellas, setEstrellas] = useState('');
   const [comentario, setComentario] = useState('');
   const [selectedId, setSelectedId] = useState(null);
 
-  // Cargar reseñas del localStorage
-  useEffect(() => {
-    const guardadas = localStorage.getItem('reseñas');
-    if (guardadas) {
-      try {
-        const parsed = JSON.parse(guardadas);
-        const normalized = parsed.map((r, i) => ({ id: r.id ?? Date.now() + i, ...r }));
-        setReseñas(normalized);
-        if (!parsed.every((r) => r.id)) {
-          localStorage.setItem('reseñas', JSON.stringify(normalized));
-        }
-      } catch (e) {
-        console.error('Error parseando reseñas desde localStorage', e);
-      }
+  // 2. Cargar reseñas desde el Backend (GET es público)
+  const fetchReviews = async () => {
+    try {
+      const response = await axios.get(API_URL);
+      setReseñas(response.data);
+    } catch (error) {
+      console.error('Error al cargar reseñas:', error);
     }
+  };
+
+  useEffect(() => {
+    fetchReviews();
   }, []);
 
-  const handleSubmit = (e) => {
+  // 3. Crear Reseña (Requiere Admin)
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!nombre || !estrellas || !comentario) {
       alert('⚠️ Completa todos los campos.');
       return;
     }
 
-    const nueva = { id: Date.now(), nombre, estrellas: parseInt(estrellas), comentario };
-    const nuevas = [...reseñas, nueva];
-    setReseñas(nuevas);
-    localStorage.setItem('reseñas', JSON.stringify(nuevas));
+    const nuevaReseña = { 
+      nombre, 
+      estrellas: parseInt(estrellas), 
+      comentario 
+    };
 
-    setNombre('');
-    setEstrellas('');
-    setComentario('');
+    try {
+      await axios.post(API_URL, nuevaReseña, getAuthHeaders());
+      alert('Reseña agregada exitosamente');
+      
+      // Limpiar y recargar
+      setNombre('');
+      setEstrellas('');
+      setComentario('');
+      fetchReviews();
+    } catch (error) {
+      console.error("Error al crear reseña:", error);
+      alert("Error: No se pudo guardar. Verifica permisos.");
+    }
   };
 
-  const handleDeleteClick = () => {
+  // 4. Eliminar Reseña (Requiere Admin)
+  const handleDeleteClick = async () => {
     if (!selectedId) {
       alert('Selecciona una reseña para eliminar');
       return;
     }
-    const filtradas = reseñas.filter((r) => r.id !== selectedId);
-    setReseñas(filtradas);
-    localStorage.setItem('reseñas', JSON.stringify(filtradas));
-    setSelectedId(null);
+
+    try {
+      await axios.delete(`${API_URL}/${selectedId}`, getAuthHeaders());
+      alert('Reseña eliminada');
+      setSelectedId(null);
+      fetchReviews();
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      alert("Error: No se pudo eliminar.");
+    }
   };
 
   const handleSelect = (id) => {
@@ -62,97 +89,40 @@ function AdminReviews() {
   };
 
   return (
-    <div
-      className="main-content"
-      style={{
-        display: 'flex',
-        justifyContent: 'flex-start', // mueve el contenido al inicio horizontal
-        alignItems: 'flex-start',
-        minHeight: '100vh',
-        background: '#fffbea',
-        paddingTop: '2rem', // sube un poco el contenido
-        paddingLeft: '10rem', // mueve bastante hacia la derecha
-      }}
-    >
-      {/* Botón Volver fijo */}
-      <button
-        onClick={() => navigate(-1)}
-        className="btn"
-        style={{
-          position: 'fixed',
-          top: '16px',
-          right: '16px',
-          background: '#f7e8a9',
-          color: '#333',
-          border: '2px solid #000',
-          zIndex: 1000,
-        }}
-      >
-        Volver
-      </button>
-
-      {/* Contenedor central */}
-      <section
-        style={{
-          background: '#fffdf0',
-          border: '2px solid #000',
-          borderRadius: '10px',
-          padding: '2.5rem',
-          width: '60%',
-          minWidth: '700px',
-          boxShadow: '4px 4px 8px rgba(0,0,0,0.15)',
-          marginTop: '0.5rem', // lo sube más
-          marginLeft: '5rem',  // ajuste fino extra a la derecha
-        }}
-      >
-        <h1
+    // --- CAMBIO 1: Wrapper responsivo ---
+    <div className="main-content">
+      
+      {/* --- CAMBIO 2: Botón Volver flexible --- */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button
+          onClick={() => navigate(-1)}
+          className="btn"
           style={{
-            textAlign: 'center',
-            fontWeight: 'bold',
-            fontSize: '1.8rem',
-            marginBottom: '1.8rem',
+            background: '#f7e8a9',
+            color: '#333',
+            border: '2px solid #000',
+            cursor: 'pointer',
+            fontWeight: 'bold'
           }}
         >
+          Volver
+        </button>
+      </div>
+
+      {/* --- CAMBIO 3: Sección responsiva --- */}
+      <section className="responsive-section" style={{ maxWidth: '800px' }}> {/* Un poco más angosto para lectura */}
+        
+        <h1 style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.8rem', marginBottom: '1.8rem' }}>
           ADMINISTRAR RESEÑAS
         </h1>
 
         {/* Botones principales */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1rem',
-            marginBottom: '2rem',
-          }}
-        >
-          <button
-            onClick={handleSubmit}
-            type="button"
-            style={{
-              background: '#25d366',
-              border: '2px solid #000',
-              color: '#fff',
-              fontWeight: 'bold',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-            }}
-          >
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+          <button onClick={handleSubmit} type="button" style={{ background: '#25d366', border: '2px solid #000', color: '#fff', fontWeight: 'bold', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>
             Enviar Reseña
           </button>
 
-          <button
-            onClick={handleDeleteClick}
-            style={{
-              background: '#d32f2f',
-              border: '2px solid #000',
-              color: '#fff',
-              fontWeight: 'bold',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-            }}
-          >
+          <button onClick={handleDeleteClick} style={{ background: '#d32f2f', border: '2px solid #000', color: '#fff', fontWeight: 'bold', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>
             Eliminar
           </button>
         </div>
@@ -168,14 +138,7 @@ function AdminReviews() {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             required
-            style={{
-              width: '100%',
-              marginBottom: '1rem',
-              padding: '8px',
-              borderRadius: '6px',
-              border: '2px solid #000',
-              background: '#fffbea',
-            }}
+            style={{ width: '100%', marginBottom: '1rem', padding: '8px', borderRadius: '6px', border: '2px solid #000', background: '#fffbea' }}
           />
 
           <label htmlFor="rating">Calificación</label>
@@ -184,14 +147,7 @@ function AdminReviews() {
             value={estrellas}
             onChange={(e) => setEstrellas(e.target.value)}
             required
-            style={{
-              width: '100%',
-              marginBottom: '1rem',
-              padding: '8px',
-              borderRadius: '6px',
-              border: '2px solid #000',
-              background: '#fffbea',
-            }}
+            style={{ width: '100%', marginBottom: '1rem', padding: '8px', borderRadius: '6px', border: '2px solid #000', background: '#fffbea' }}
           >
             <option value="">Selecciona ⭐</option>
             <option value="5">⭐⭐⭐⭐⭐</option>
@@ -209,56 +165,40 @@ function AdminReviews() {
             value={comentario}
             onChange={(e) => setComentario(e.target.value)}
             required
-            style={{
-              width: '100%',
-              marginBottom: '1rem',
-              padding: '8px',
-              borderRadius: '6px',
-              border: '2px solid #000',
-              background: '#fffbea',
-            }}
+            style={{ width: '100%', marginBottom: '1rem', padding: '8px', borderRadius: '6px', border: '2px solid #000', background: '#fffbea' }}
           ></textarea>
         </form>
 
         {/* Lista de reseñas */}
-        <div
-          style={{
-            background: '#fdf6d9',
-            borderRadius: '10px',
-            border: '2px solid #000',
-            overflow: 'hidden',
-          }}
-        >
+        <div style={{ background: '#fdf6d9', borderRadius: '10px', border: '2px solid #000', overflow: 'hidden' }}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {reseñas.map((r) => (
-              <li
-                key={r.id}
-                onClick={() => handleSelect(r.id)}
-                style={{
-                  padding: '1rem',
-                  cursor: 'pointer',
-                  borderBottom: '2px solid #000',
-                  background: selectedId === r.id ? '#ffe680' : '#fdf6d9',
-                  transition: 'background 0.15s ease',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <div>
-                  <h3 style={{ margin: 0, color: '#333' }}>{r.nombre}</h3>
-                  <p style={{ margin: '0.4rem 0 0', color: '#666' }}>
-                    {'⭐'.repeat(r.estrellas)}
-                  </p>
-                  <p style={{ margin: '0.4rem 0 0', color: '#333' }}>
-                    &quot;{r.comentario}&quot;
-                  </p>
-                </div>
-                {selectedId === r.id && (
-                  <span style={{ color: '#25d366', fontSize: '1.2rem' }}>✓</span>
-                )}
-              </li>
-            ))}
+            {reseñas.length === 0 ? (
+                <li style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No hay reseñas aún.</li>
+            ) : (
+                reseñas.map((r) => (
+                <li
+                    key={r.id}
+                    onClick={() => handleSelect(r.id)}
+                    style={{
+                    padding: '1rem',
+                    cursor: 'pointer',
+                    borderBottom: '2px solid #000',
+                    background: selectedId === r.id ? '#ffe680' : '#fdf6d9',
+                    transition: 'background 0.15s ease',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    }}
+                >
+                    <div>
+                    <h3 style={{ margin: 0, color: '#333', fontSize: '1.1rem' }}>{r.nombre}</h3>
+                    <p style={{ margin: '0.4rem 0 0', color: '#666' }}>{'⭐'.repeat(r.estrellas)}</p>
+                    <p style={{ margin: '0.4rem 0 0', color: '#333', fontStyle: 'italic' }}>&quot;{r.comentario}&quot;</p>
+                    </div>
+                    {selectedId === r.id && <span style={{ color: '#25d366', fontSize: '1.5rem', fontWeight: 'bold' }}>✓</span>}
+                </li>
+                ))
+            )}
           </ul>
         </div>
       </section>
