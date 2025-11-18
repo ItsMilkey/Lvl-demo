@@ -1,4 +1,5 @@
 // src/App.jsx
+import { useState } from 'react'; // 1. Importamos useState
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import HomePage from './pages/HomePage.jsx';
@@ -19,12 +20,38 @@ import CartPage from './pages/CartPage.jsx';
 
 function App() {
   const location = useLocation();
-  const hideNavbar = location.pathname.startsWith('/admin');
+  
+  // 2. Estado para saber si la barra está colapsada o expandida
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // 3. Definimos dónde OCULTAR la barra (Login y Registro). 
+  // En Admin AHORA SÍ LA MOSTRAMOS porque es útil, y se puede colapsar si molesta.
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/registro';
+
   return (
     <div className="app-container">
-      {!hideNavbar && <Navbar />}
-      {/* Se añade el contenedor <main> para asegurar el layout correcto */}
-      <main className="main-content">
+      {/* Pasamos el estado y la función al Navbar */}
+      {!hideNavbar && (
+        <Navbar 
+          isCollapsed={isSidebarCollapsed} 
+          toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+        />
+      )}
+
+      {/* El <main> calcula su margen dinámicamente:
+         - Si no hay navbar: margen 0
+         - Si está colapsada: margen 60px
+         - Si está expandida: margen 220px
+         
+         Nota: En móviles, el CSS global con !important sobrescribe esto a 0 automáticamente.
+      */}
+      <main 
+        className="main-content"
+        style={{ 
+            marginLeft: hideNavbar ? 0 : (isSidebarCollapsed ? '60px' : '220px'),
+            width: hideNavbar ? '100%' : (isSidebarCollapsed ? 'calc(100% - 60px)' : 'calc(100% - 220px)')
+        }}
+      >
         <Routes>
           {/* --- Rutas Públicas --- */}
           <Route path="/" element={<HomePage />} />

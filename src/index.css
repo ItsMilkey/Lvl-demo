@@ -6,7 +6,6 @@
   padding: 0;
   box-sizing: border-box;
   font-family: monospace, sans-serif;
-  /* Quitamos max-width global aquí para evitar conflictos de layout */
 }
 
 body {
@@ -14,7 +13,7 @@ body {
   min-height: 100vh;
   color: #222;
   background: #fffbea;
-  overflow-x: hidden; /* Previene scroll horizontal */
+  overflow-x: hidden; /* Evita scroll horizontal */
 }
 
 .app-container {
@@ -27,7 +26,7 @@ body {
    2. LAYOUT PRINCIPAL (SIDEBAR Y MAIN)
    ========================================= */
 
-/* Barra Lateral Fija */
+/* --- Sidebar --- */
 .sidebar {
   width: 220px;
   background: #b9dbf791;
@@ -35,19 +34,18 @@ body {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  position: fixed; /* Siempre fija a la izquierda */
+  position: fixed;
   height: 100vh;
   left: 0;
   top: 0;
   z-index: 1000;
-  transition: transform 0.3s ease; /* Animación suave */
+  /* Transición para el ancho (Desktop) y para transform (Móvil) */
+  transition: width 0.3s ease, transform 0.3s ease;
 }
 
-.sidebar .logo { font-size: 1.5rem; margin-bottom: 2rem; }
-
-.sidebar nav ul { list-style: none; }
+.sidebar .logo { font-size: 1.5rem; margin-bottom: 2rem; white-space: nowrap; overflow: hidden; }
+.sidebar nav ul { list-style: none; width: 100%; }
 .sidebar nav ul li { margin-bottom: 1rem; }
-
 .sidebar nav ul li a {
   text-decoration: none;
   color: #333;
@@ -56,144 +54,100 @@ body {
   display: block;
   border-radius: 5px;
   transition: background 0.2s;
+  white-space: nowrap; /* Evita que el texto salte al colapsar */
+  overflow: hidden;
 }
+.sidebar nav ul li a.active, .sidebar nav ul li a:hover { background: #ddd; color: #000; }
 
-.sidebar nav ul li a.active,
-.sidebar nav ul li a:hover {
-  background: #ddd;
-  color: #000;
+/* Estilos para modo Colapsado (Desktop) */
+.sidebar.collapsed {
+  width: 60px;
+  padding: 1rem 5px;
+  align-items: center;
 }
+.sidebar.collapsed .logo { font-size: 0.8rem; text-align: center; }
+.sidebar.collapsed nav ul li a { text-align: center; padding: 0.5rem; font-size: 1.2rem; }
 
-/* Contenido Principal (Base) */
+/* Botón para colapsar (Flecha Desktop) */
+.collapse-btn-desktop {
+  background: none; border: none; font-size: 1.2rem; cursor: pointer;
+  align-self: flex-end; margin-bottom: 1rem; color: #555;
+  display: block; /* Visible por defecto en PC */
+}
+.sidebar.collapsed .collapse-btn-desktop { align-self: center; margin-bottom: 2rem; }
+
+
+/* --- Contenido Principal --- */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   padding: 2rem;
-  transition: all 0.3s ease;
-  /* Las dimensiones específicas se manejan en las media queries */
+  /* La transición suave permite que el contenido se ajuste al colapsar la barra */
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  
+  /* NOTA: El margin-left y width se calculan dinámicamente en App.jsx via style={{...}}
+     para soportar el estado 'collapsed'. Aquí definimos el comportamiento base. */
 }
 
 /* =========================================
    3. COMPONENTES GLOBALES
    ========================================= */
 
-/* Topbar */
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 2px solid #ddd;
-  background: #f7e8a9;
-  width: 100%;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem; border-bottom: 2px solid #ddd; background: #f7e8a9; width: 100%;
+  border-radius: 8px; margin-bottom: 2rem;
 }
-
-.topbar input {
-  flex: 1;
-  max-width: 300px;
-  padding: 0.5rem;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-}
-
+.topbar input { flex: 1; max-width: 300px; padding: 0.5rem; border: 1px solid #aaa; border-radius: 4px; }
 .topbar .actions { display: flex; align-items: center; gap: 1rem; }
 .avatar { width: 40px; border-radius: 50%; cursor: pointer; }
 .carrito-icon img { width: 30px; cursor: pointer; transition: transform 0.2s; }
 .carrito-icon img:hover { transform: scale(1.1); }
 
-/* Tarjetas */
 .card, .category-card {
-  border: 2px solid #000;
-  border-radius: 10px;
-  padding: 15px;
-  background: #fdf6d9;
-  text-align: center;
-  transition: transform 0.2s ease, background 0.2s ease;
+  border: 2px solid #000; border-radius: 10px; padding: 15px; background: #fdf6d9;
+  text-align: center; transition: transform 0.2s ease, background 0.2s ease;
 }
 .card:hover, .category-card:hover { background: #ffe680; transform: scale(1.03); }
 .card img, .category-card img { max-width: 100%; height: auto; border-radius: 8px; border: 2px solid #000; margin: 10px 0; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
 
-/* Botones Globales */
 .btn {
-  display: inline-block;
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #25d366;
-  color: white;
-  font-weight: bold;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: background 0.2s;
-  border: none;
-  cursor: pointer;
-  text-align: center;
+  display: inline-block; margin-top: 0.5rem; padding: 0.5rem 1rem;
+  background: #25d366; color: white; font-weight: bold; text-decoration: none;
+  border-radius: 5px; transition: background 0.2s; border: none; cursor: pointer; text-align: center;
 }
 .btn:hover { background: #1da851; }
 
-/* Elementos Auxiliares */
 section { padding: 0; }
 section h2, .highlight h1 { margin-bottom: 1.2rem; }
 .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; width: 100%; padding: 1rem; }
 
-/* WhatsApp */
 .whatsapp-container { position: fixed; bottom: 20px; right: 20px; text-align: center; z-index: 1001; }
 .whatsapp-msg { display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #25d366; background: #fff; padding: 5px 10px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 .whatsapp-float img { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: transform 0.3s ease; }
 .whatsapp-float img:hover { transform: scale(1.1); }
 
-
 /* =========================================
-   4. UTILIDADES PARA ADMIN Y PÁGINAS
+   4. UTILIDADES
    ========================================= */
-
-.content-centered {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
+.content-centered { display: flex; justify-content: center; width: 100%; }
 .responsive-section {
-  width: 100%;
-  max-width: 1200px;
-  background: #fffdf0;
-  border: 2px solid #000;
-  border-radius: 10px;
-  padding: 2.5rem;
-  box-shadow: 4px 4px 8px rgba(0,0,0,0.15);
-  margin: 0 auto;
+  width: 100%; max-width: 1200px; background: #fffdf0; border: 2px solid #000;
+  border-radius: 10px; padding: 2.5rem; box-shadow: 4px 4px 8px rgba(0,0,0,0.15); margin: 0 auto;
 }
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  border: 2px solid #000;
-  border-radius: 10px;
-}
+.table-responsive { width: 100%; overflow-x: auto; border: 2px solid #000; border-radius: 10px; }
+.main-content > section, .main-content > div { margin: 0 auto; width: 100%; max-width: 1200px; }
 
 /* =========================================
-   5. ESTILOS DE PÁGINAS ESPECÍFICAS
+   5. PÁGINAS ESPECÍFICAS
    ========================================= */
-
-/* Login / Registro */
 .auth-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  z-index: 2000;
-  max-width: 90%;
-  background: #fffbea; 
-  border: 2px solid #000;
-  border-radius: 10px;
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; padding: 2rem; z-index: 2000;
+  max-width: 90%; background: #fffbea; border: 2px solid #000; border-radius: 10px;
 }
 .auth-container form { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 1rem; background-color: #fdf6d9; padding: 2rem; border-radius: 8px; border: 2px solid #000; margin: 0 auto; }
 .auth-container .switch a { color: #25d366; font-weight: bold; text-decoration: none; }
@@ -201,13 +155,8 @@ section h2, .highlight h1 { margin-bottom: 1.2rem; }
 .auth-container .terms label, .auth-container .remember label { margin-bottom: 0; }
 .auth-container input[type="checkbox"] { width: auto; }
 
-/* Reseñas, Referidos, Comunidad, Perfil, Carrito */
 .reseñas-container, .points-display, .benefits-list, .highlight-card, .cart-item {
-  background-color: #fdf6d9;
-  border: 2px solid #000;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  background-color: #fdf6d9; border: 2px solid #000; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem;
 }
 .reseñas-container { max-width: 800px; margin: 0 auto; }
 .reseñas-container form { display: flex; flex-direction: column; gap: 1rem; background-color: #fdf6d9; padding: 1.5rem; border-radius: 8px; border: 2px solid #000; margin-bottom: 2rem; }
@@ -215,11 +164,9 @@ section h2, .highlight h1 { margin-bottom: 1.2rem; }
 #reviewsList { display: flex; flex-direction: column; gap: 1.5rem; }
 .review-card { background-color: #fdf6d9; padding: 1.5rem; border-radius: 8px; border: 2px solid #000; }
 
-/* Perfil */
 .btn-logout { background-color: #d32f2f; margin-top: 1rem; }
 .btn-logout:hover { background-color: #b71c1c; }
 
-/* Carrito */
 .cart-container { padding: 1rem; }
 .cart-items { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
 .cart-item { display: flex; align-items: center; gap: 1rem; }
@@ -232,109 +179,53 @@ section h2, .highlight h1 { margin-bottom: 1.2rem; }
 
 
 /* =========================================
-   6. MEDIA QUERIES (RESPONSIVIDAD GLOBAL)
+   6. MEDIA QUERIES (MÓVILES/TABLETS)
    ========================================= */
+.menu-toggle-mobile { display: none; } /* Oculto por defecto en PC */
 
-/* --- A. DESKTOP / LAPTOP (Pantallas grandes > 1000px) --- */
-@media (min-width: 1001px) {
-  .main-content {
-    /* Deja espacio a la izquierda para la barra lateral */
-    margin-left: 220px; 
-    /* El ancho es el total menos la barra lateral */
-    width: calc(100% - 220px); 
-  }
-  
-  /* Ocultamos elementos móviles en desktop */
-  .menu-toggle, .menu-overlay {
-    display: none;
-  }
-}
-
-/* --- B. TABLETS Y MÓVILES (Pantallas < 1000px) --- */
 @media (max-width: 1000px) {
-  
-  /* 1. Ocultar Sidebar por defecto (se abrirá con botón) */
+  .collapse-btn-desktop { display: none; } /* Ocultar flecha de colapso */
+
+  /* 1. Sidebar oculta por defecto */
   .sidebar {
-    transform: translateX(-100%); 
-    z-index: 2000; /* Debe estar por encima del contenido al abrirse */
+    transform: translateX(-100%); /* Fuera de pantalla */
+    width: 250px; /* Ancho fijo al abrir */
+    z-index: 2000;
+  }
+  /* Clase para abrir sidebar */
+  .sidebar.mobile-open { transform: translateX(0); box-shadow: 5px 0 15px rgba(0,0,0,0.3); }
+
+  /* 2. Contenido Principal FULL WIDTH */
+  .main-content {
+    margin-left: 0 !important; /* Fuerza margen 0 */
+    width: 100% !important;    /* Fuerza ancho 100% */
+    padding: 1rem;
+    padding-top: 4rem; /* Espacio para botón menú */
+  }
+
+  /* 3. Botón Móvil Visible */
+  .menu-toggle-mobile {
+    display: block; position: fixed; top: 15px; left: 15px; z-index: 3000;
+    background: #333; color: #fff; border: 2px solid #fff; border-radius: 5px;
+    padding: 5px 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   }
   
-  /* 2. Contenido ocupa todo el ancho */
-  .main-content {
-    margin-left: 0 !important;
-    width: 100% !important;
-    padding: 1rem;
-    padding-top: 4rem; /* Espacio para el botón hamburguesa */
+  .menu-overlay {
+    display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5); z-index: 1500; backdrop-filter: blur(2px);
   }
 
   /* Ajustes visuales */
-  .responsive-section {
-    width: 100%;
-    padding: 1.5rem;
-  }
-
-  /* Mostrar elementos del menú móvil */
-  .menu-toggle { display: block; }
-  .menu-overlay { display: block; }
-
-  /* Clase para abrir el menú */
-  .sidebar.open {
-    transform: translateX(0) !important;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
-  }
+  .responsive-section { width: 100%; padding: 1.5rem; }
 }
 
-/* --- C. MÓVILES PEQUEÑOS (< 600px) --- */
 @media (max-width: 600px) {
   h1 { font-size: 1.8rem; }
-  
   .topbar { flex-direction: column; gap: 10px; }
   .topbar input { max-width: 100%; width: 100%; }
-  
   form { flex-direction: column !important; }
-  
   .cart-item { flex-direction: column; align-items: flex-start; }
   .cart-actions { flex-direction: column; }
-  
   .btn { width: 100%; text-align: center; }
-
-  .responsive-section {
-    width: 98% !important; 
-    padding: 1.5rem !important;
-    min-width: auto !important;
-  }
-}
-
-/* ---------------------------------------------------------- */
-/* --- ESTILOS DEL MENÚ MÓVIL --- */
-/* ---------------------------------------------------------- */
-
-.menu-toggle {
-  display: none; /* Oculto por defecto, se activa en media query */
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 3000;
-  background: #333;
-  color: #fff;
-  border: 2px solid #fff;
-  border-radius: 5px;
-  padding: 5px 10px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
-}
-
-.menu-toggle:hover {
-  background: #000;
-}
-
-.menu-overlay {
-  display: none; /* Oculto por defecto */
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.5);
-  z-index: 999;
-  backdrop-filter: blur(2px);
+  .responsive-section { width: 98% !important; padding: 1.5rem !important; }
 }

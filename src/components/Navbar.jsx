@@ -1,45 +1,45 @@
 // src/components/Navbar.jsx
-import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
 
-function Navbar() {
-  // Estado para controlar si el menú está abierto o cerrado en móvil
-  const [isOpen, setIsOpen] = useState(false);
+function Navbar({ isCollapsed, toggleSidebar }) {
+  // Estado local solo para móvil
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Función para alternar el menú
-  const toggleMenu = () => setIsOpen(!isOpen);
-
-  // Función para cerrar el menú al hacer clic en un enlace
-  const closeMenu = () => setIsOpen(false);
+  const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
+  const closeMobile = () => setIsMobileOpen(false);
 
   return (
     <>
-      {/* 1. BOTÓN HAMBURGUESA (Visible solo en móvil) */}
-      <button 
-        className={`menu-toggle ${isOpen ? 'active' : ''}`} 
-        onClick={toggleMenu}
-        aria-label="Abrir menú"
-      >
-        {isOpen ? '✖' : '☰'}
+      {/* BOTÓN HAMBURGUESA MÓVIL */}
+      <button className="menu-toggle-mobile" onClick={toggleMobile}>
+        ☰
       </button>
 
-      {/* 2. SIDEBAR (Añadimos la clase 'open' si el estado es true) */}
-      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <h2 className="logo">LvL-UP Gamer</h2>
+      {/* SIDEBAR (Desktop + Móvil unificados) */}
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
+        
+        {/* Botón para colapsar en Desktop */}
+        <button className="collapse-btn-desktop" onClick={toggleSidebar}>
+           {isCollapsed ? '➤' : '◀'}
+        </button>
+
+        <h2 className="logo">{isCollapsed ? 'LvL' : 'LvL-UP Gamer'}</h2>
+        
         <nav>
           <ul>
-            <li><NavLink to="/" onClick={closeMenu}>🏠 Inicio</NavLink></li>
-            <li><NavLink to="/productos" onClick={closeMenu}>📦 Productos</NavLink></li>
-            <li><NavLink to="/reseñas" onClick={closeMenu}>⭐ Reseñas</NavLink></li>
-            <li><NavLink to="/referidos" onClick={closeMenu}>👥 Referidos</NavLink></li>
-            <li><NavLink to="/comunidad" onClick={closeMenu}>🌍 Comunidad</NavLink></li>
-            <li><NavLink to="/perfil" onClick={closeMenu}>👤 Perfil</NavLink></li>
+            <li><NavLink to="/" onClick={closeMobile} title="Inicio">{isCollapsed ? '🏠' : '🏠 Inicio'}</NavLink></li>
+            <li><NavLink to="/productos" onClick={closeMobile} title="Productos">{isCollapsed ? '📦' : '📦 Productos'}</NavLink></li>
+            <li><NavLink to="/reseñas" onClick={closeMobile} title="Reseñas">{isCollapsed ? '⭐' : '⭐ Reseñas'}</NavLink></li>
+            <li><NavLink to="/referidos" onClick={closeMobile} title="Referidos">{isCollapsed ? '👥' : '👥 Referidos'}</NavLink></li>
+            <li><NavLink to="/comunidad" onClick={closeMobile} title="Comunidad">{isCollapsed ? '🌍' : '🌍 Comunidad'}</NavLink></li>
+            <li><NavLink to="/perfil" onClick={closeMobile} title="Perfil">{isCollapsed ? '👤' : '👤 Perfil'}</NavLink></li>
           </ul>
         </nav>
       </aside>
 
-      {/* 3. OVERLAY (Fondo oscuro al abrir menú en móvil) */}
-      {isOpen && <div className="menu-overlay" onClick={closeMenu}></div>}
+      {/* Overlay Móvil */}
+      {isMobileOpen && <div className="menu-overlay" onClick={closeMobile}></div>}
     </>
   );
 }
