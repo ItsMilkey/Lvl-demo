@@ -48,7 +48,7 @@ function Admin() {
 
   const handleLogout = () => {
     localStorage.removeItem('usuarioActivo');
-    localStorage.removeItem('token'); // Aseguramos borrar el token también
+    localStorage.removeItem('token'); 
     localStorage.removeItem('role');
     navigate('/login');
   };
@@ -64,10 +64,10 @@ function Admin() {
     minHeight: '140px',
     textAlign: 'left',
     borderRadius: '12px',
-    border: '2px solid #000', // Borde negro para consistencia con tu tema
+    border: '2px solid #000', 
     background: '#fff',
     cursor: 'pointer',
-    boxShadow: '4px 4px 0px rgba(0,0,0,0.1)', // Sombra ligera
+    boxShadow: '4px 4px 0px rgba(0,0,0,0.1)', 
     transition: 'transform 0.2s, box-shadow 0.2s',
     display: 'flex',
     alignItems: 'center',
@@ -75,36 +75,34 @@ function Admin() {
   };
 
   return (
-    // 1. USAMOS LA CLASE "main-content" (Esto aplica el margen inteligente y responsividad)
     <div className="main-content">
       
-      {/* Botón Cerrar sesión */}
-      <button
-        onClick={handleLogout}
-        className="btn"
-        style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          background: '#d32f2f', // Rojo para logout
-          color: '#fff',
-          zIndex: 2000, // Por encima de todo
-          border: '2px solid #000'
-        }}
-      >
-        Cerrar sesión
-      </button>
+      {/* CAMBIO: Contenedor Flex para el botón.
+          Ya no es 'fixed', ahora fluye con la página y se alinea a la derecha.
+      */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button
+          onClick={handleLogout}
+          className="btn"
+          style={{
+            background: '#d32f2f', 
+            color: '#fff',
+            border: '2px solid #000',
+            padding: '0.8rem 1.5rem',
+            cursor: 'pointer'
+          }}
+        >
+          Cerrar sesión
+        </button>
+      </div>
 
-      <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', marginTop: '2rem' }}>
+      <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', marginTop: '1rem' }}>
         <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Panel de Administración</h1>
           <p style={{ color: '#666', fontSize: '1.1rem' }}>Bienvenido, administrador. Selecciona una herramienta.</p>
         </header>
 
-        {/* 2. GRID RESPONSIVO AUTOMÁTICO 
-           repeat(auto-fit, minmax(300px, 1fr)) -> Crea tantas columnas como quepan.
-           Si la pantalla es pequeña, baja a 1 columna automáticamente.
-        */}
+        {/* GRID RESPONSIVO AUTOMÁTICO */}
         <section
           style={{
             display: 'grid',
