@@ -1,51 +1,116 @@
 // src/pages/ProfilePage.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// URL para obtener mis propios datos
+const API_URL = import.meta.env.VITE_API_URL + '/api/users/me';
 
 function ProfilePage() {
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState({ email: '', username: '', birthdate: '', preferencia: '' });
+  
+  // Estado inicial
+  const [usuario, setUsuario] = useState({ 
+    name: '', 
+    email: '', 
+    birthdate: '', 
+    preferencia: '' 
+  });
+  
+  const [loading, setLoading] = useState(true);
 
-  // Cargar los datos del usuario desde localStorage al montar la página
+  // --- CARGAR DATOS REALES DEL BACKEND ---
   useEffect(() => {
-    const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo'));
-    if (usuarioActivo) {
-      setUsuario(prev => ({ ...prev, ...usuarioActivo }));
-    }
-  }, []);
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/login'); // Si no hay token, fuera
+        return;
+      }
 
-  // Manejar cambios en el formulario
+      try {
+        const response = await axios.get(API_URL, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Llenamos el estado con los datos reales de la BD
+        setUsuario(prev => ({
+          ...prev,
+          name: response.data.name,   // Nombre real de Oracle
+          email: response.data.email, // Email real de Oracle
+          // Nota: Si tu BD no tiene fecha/preferencia, estos seguirán vacíos
+        }));
+      } catch (error) {
+        console.error("Error al cargar perfil:", error);
+        alert("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+        handleLogout(); // Si el token no sirve, cerramos sesión
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [navigate]);
+
+  // Manejar cambios en el formulario (Solo visual por ahora)
   const handleChange = (e) => {
     const { id, value } = e.target;
     setUsuario(prev => ({ ...prev, [id]: value }));
   };
 
-  // Guardar cambios en el perfil
+  // Guardar cambios (Por ahora solo simulación visual o podrías hacer un PUT)
   const handleSubmit = (e) => {
     e.preventDefault();
-    localStorage.setItem('usuarioActivo', JSON.stringify(usuario));
-    alert('✅ Perfil actualizado correctamente.');
+    alert('✅ Datos locales actualizados (La actualización en BD requiere un endpoint PUT).');
   };
 
-  // Cerrar sesión
+  // --- LOGOUT REAL ---
   const handleLogout = () => {
-    localStorage.removeItem('usuarioActivo');
-    alert('👋 Sesión cerrada.');
+    // 1. Borramos TODO rastro de la sesión
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    
+    // 2. Feedback y redirección
+    alert('👋 Sesión cerrada correctamente.');
     navigate('/login');
   };
+
+  if (loading) return <div className="auth-container"><p>Cargando perfil...</p></div>;
 
   return (
     <div className="auth-container">
       <h1>👤 Mi Perfil</h1>
+      
       <form onSubmit={handleSubmit}>
-        <label htmlFor="username">Nombre de usuario</label>
-        <input type="text" id="username" value={usuario.username || ''} onChange={handleChange} required />
+        <label htmlFor="name">Nombre de usuario</label>
+        {/* Mostramos el nombre real traído del backend */}
+        <input 
+          type="text" 
+          id="name" 
+          value={usuario.name || ''} 
+          onChange={handleChange} 
+          // Si quieres que sea solo lectura, agrega: readOnly 
+        />
 
         <label htmlFor="email">Correo electrónico</label>
-        <input type="email" id="email" value={usuario.email || ''} onChange={handleChange} required disabled />
+        {/* El correo suele ser inmutable */}
+        <input 
+          type="email" 
+          id="email" 
+          value={usuario.email || ''} 
+          readOnly 
+          disabled 
+          style={{ backgroundColor: '#e9ecef' }} 
+        />
 
         <label htmlFor="birthdate">Fecha de nacimiento</label>
-        <input type="date" id="birthdate" value={usuario.birthdate || ''} onChange={handleChange} required />
+        <input 
+          type="date" 
+          id="birthdate" 
+          value={usuario.birthdate || ''} 
+          onChange={handleChange} 
+        />
 
         <label htmlFor="preferencia">Categoría favorita</label>
         <select id="preferencia" value={usuario.preferencia || ''} onChange={handleChange}>
@@ -53,13 +118,21 @@ function ProfilePage() {
           <option value="Juegos de Mesa">Juegos de Mesa</option>
           <option value="Accesorios">Accesorios</option>
           <option value="Consolas">Consolas</option>
-          {/* ... (resto de opciones) ... */}
+          <option value="Computadores Gamers">Computadores Gamers</option>
         </select>
 
         <button type="submit" className="btn">Guardar cambios</button>
       </form>
 
-      <button onClick={handleLogout} className="btn btn-logout">Cerrar sesión</button>
+      <div style={{marginTop: '2rem', borderTop: '1px solid #ccc', paddingTop: '1rem'}}>
+        <button 
+            onClick={handleLogout} 
+            className="btn" 
+            style={{backgroundColor: '#d32f2f', border: '2px solid #000'}}
+        >
+            Cerrar sesión
+        </button>
+      </div>
     </div>
   );
 }
