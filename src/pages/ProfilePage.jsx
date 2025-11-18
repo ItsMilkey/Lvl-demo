@@ -62,7 +62,7 @@ function ProfilePage() {
   // Guardar cambios (Por ahora solo simulación visual o podrías hacer un PUT)
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('✅ Datos locales actualizados (La actualización en BD requiere un endpoint PUT).');
+    alert('✅ Datos locales actualizados.');
   };
 
   // --- LOGOUT REAL ---
