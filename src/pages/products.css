@@ -5,93 +5,143 @@
   text-align: center;
   margin-bottom: 2rem;
   padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .topbar h1 {
   font-size: 2.5rem;
-  margin-bottom: 1.5rem;
+  margin: 0;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  font-weight: 900; /* Fuente muy gruesa como en la imagen */
+  color: #222;
 }
 
 #searchBar {
   width: 100%;
-  max-width: 500px;
-  padding: 12px 20px;
-  border: 2px solid #000;
-  border-radius: 30px; /* Bordes redondeados modernos */
-  font-size: 1rem;
+  max-width: 600px;
+  padding: 15px 25px;
+  border: 3px solid #000; /* Borde grueso */
+  border-radius: 50px; /* Totalmente redondeado */
+  font-size: 1.1rem;
   outline: none;
-  transition: all 0.3s ease;
-  box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+  background: #fff;
+  box-shadow: 6px 6px 0px #000; /* Sombra dura negra */
+  transition: all 0.2s ease;
+  font-family: monospace, sans-serif; /* Fuente acorde al tema */
 }
 
 #searchBar:focus {
-  box-shadow: 4px 4px 0px #000; /* Efecto "pop" al escribir */
-  transform: translateY(-2px);
+  transform: translate(2px, 2px); /* Efecto de presión */
+  box-shadow: 4px 4px 0px #000;
 }
 
-/* --- Grid de Productos (Ajustado para 4 columnas fijas) --- */
+/* --- Sección de Filtros (Categorías y Precio) --- */
+/* Contenedor visual de los filtros */
+.filters-container {
+  border: 3px solid #000;
+  border-radius: 15px;
+  background: #fff; /* Fondo blanco */
+  padding: 20px;
+  margin: 0 auto 40px auto;
+  max-width: 900px; /* Ancho controlado */
+  box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
+}
+
+/* Botones de Categoría */
+.category-btn {
+  padding: 8px 20px;
+  border: 2px solid #000;
+  border-radius: 25px; /* Estilo píldora */
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 2px 2px 0px #000; /* Sombra pequeña */
+}
+
+.category-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px #000;
+}
+
+.category-btn.active {
+  background: #000;
+  color: #fff;
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+/* Slider de Precio */
+input[type=range] {
+  -webkit-appearance: none; /* Quitar estilo por defecto */
+  width: 100%;
+  background: transparent;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: #000; /* Barra negra sólida */
+  border-radius: 5px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: #000;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -8px; /* Centrar el punto */
+  border: 2px solid #fff; /* Borde blanco para destacar */
+  box-shadow: 0 0 0 1px #000;
+}
+
+/* --- Grid de Productos (4 Columnas Fijas como base) --- */
 .product-grid {
   display: grid;
-  /* FUERZA 4 COLUMNAS DE IGUAL ANCHO */
-  grid-template-columns: repeat(5, 1fr); 
-  gap: 25px; /* Espaciado entre tarjetas */
-  padding: 0 20px 40px 20px; /* Margen a los lados */
-  align-items: stretch; /* Asegura que todas las tarjetas de una fila tengan la misma altura */
+  /* 4 columnas fijas es un buen estándar para desktop, se adapta abajo */
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 30px;
+  padding: 0 20px 40px 20px;
+  align-items: stretch;
 }
-
-/* --- Media Queries para responsividad (ahora son más cruciales) --- */
-@media (max-width: 1200px) { /* Para pantallas más pequeñas que un desktop grande */
-  .product-grid {
-    grid-template-columns: repeat(3, 1fr); /* 3 columnas */
-  }
-}
-
-@media (max-width: 900px) { /* Para tablets en horizontal */
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas */
-    gap: 20px;
-  }
-}
-
-@media (max-width: 600px) { /* Para móviles */
-  .product-grid {
-    grid-template-columns: 1fr; /* 1 columna */
-    padding: 0 15px 30px 15px;
-    gap: 20px;
-  }
-}
-
 
 /* --- Tarjeta de Producto --- */
 .product-card {
   background: #fff;
-  border: 3px solid #000;
-  border-radius: 12px;
-  padding: 15px;
+  border: 3px solid #000; /* Borde grueso negro */
+  border-radius: 15px; /* Bordes muy redondeados */
+  padding: 20px;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
+  box-shadow: none; /* Diseño plano limpio por defecto */
 }
 
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 8px 8px 0px #000;
+  box-shadow: 8px 8px 0px #000; /* Sombra dura al hover */
 }
 
-/* --- Contenedor de Imagen --- */
+/* Contenedor de Imagen */
 .image-container {
   width: 100%;
-  height: 180px; 
+  height: 220px; /* Altura fija generosa */
   background-color: #fff; 
-  border-radius: 8px;
-  border: 1px solid #eee;
-  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #eee; /* Borde muy sutil interno */
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,47 +157,82 @@
 }
 
 .product-card:hover img {
-  transform: scale(1.08);
+  transform: scale(1.1);
 }
 
-/* --- Textos --- */
+/* Textos */
 .product-card h3 {
   font-size: 1.1rem; 
-  margin: 8px 0;
-  font-weight: 800;
+  margin: 10px 0;
+  font-weight: 700;
   color: #333;
+  /* Limitar texto */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 2.4rem; 
+  height: 2.6rem; /* Altura fija para alinear botones */
 }
 
 .product-card .price {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.3rem;
+  font-weight: 900;
   color: #25d366;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 
-/* --- Botón Agregar --- */
+/* Botón Agregar al Carrito */
 .btn-add {
-  background: #ffdd57;
+  background: #f7e8a9; /* Amarillo suave */
   color: #000;
   border: 2px solid #000;
-  padding: 10px 15px;
+  padding: 12px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   width: 100%;
   transition: all 0.2s ease;
+  box-shadow: 2px 2px 0px #000;
 }
 
 .btn-add:hover {
-  background: #000;
-  color: #ffdd57;
-  transform: scale(1.02);
+  background: #ffe680;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #000;
+}
+
+/* --- Media Queries para Responsividad --- */
+@media (max-width: 1200px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas en pantallas medianas */
+  }
+}
+
+@media (max-width: 900px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+    gap: 20px;
+  }
+  .filters-container {
+    width: 95%; /* Filtros ocupan más ancho */
+  }
+}
+
+@media (max-width: 600px) {
+  .product-grid {
+    grid-template-columns: 1fr; /* 1 columna en móviles */
+    padding: 0 15px 30px 15px;
+  }
+  
+  #searchBar {
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+  
+  .topbar h1 {
+    font-size: 1.8rem;
+  }
 }
