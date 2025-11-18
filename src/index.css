@@ -1,6 +1,4 @@
-/* =========================================
-   1. RESET Y ESTILOS BASE
-   ========================================= */
+/* Reset global */
 * {
   margin: 0;
   padding: 0;
@@ -16,17 +14,13 @@ body {
   background: #fffbea;
 }
 
+/* --- ESTA ES LA REGLA AÑADIDA PARA CORREGIR EL LAYOUT --- */
 .app-container {
   display: flex;
-  width: 100%;
-  position: relative;
+  width: 100%; /* Asegura que ocupe todo el ancho */
 }
 
-/* =========================================
-   2. LAYOUT PRINCIPAL (SIDEBAR Y MAIN)
-   ========================================= */
-
-/* Barra Lateral Fija */
+/* Sidebar */
 .sidebar {
   width: 220px;
   background: #b9dbf791;
@@ -34,18 +28,26 @@ body {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  position: fixed; /* Siempre fija a la izquierda */
+  position: fixed;
   height: 100vh;
   left: 0;
   top: 0;
-  z-index: 1000;
-  transition: transform 0.3s ease; /* Animación suave al esconderse */
+  z-index: 1000; /* Asegura que esté por encima si es necesario */
+  transition: transform 0.3s ease; /* Transición suave para móviles */
 }
 
-.sidebar .logo { font-size: 1.5rem; margin-bottom: 2rem; }
+.sidebar .logo {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
 
-.sidebar nav ul { list-style: none; }
-.sidebar nav ul li { margin-bottom: 1rem; }
+.sidebar nav ul {
+  list-style: none;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 1rem;
+}
 
 .sidebar nav ul li a {
   text-decoration: none;
@@ -63,26 +65,16 @@ body {
   color: #000;
 }
 
-/* Contenido Principal (Layout Inteligente) */
+/* Main */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  
-  /* Calcula el ancho restando el sidebar */
-  width: calc(100% - 220px); 
-  /* Empuja el contenido a la derecha */
-  margin-left: 220px; 
-  
-  padding: 2rem; /* Espacio interno estándar para todas las páginas */
-  transition: all 0.3s ease; /* Suaviza el cambio de tamaño */
-  min-height: 100vh;
   overflow-y: auto;
+  margin-left: 220px; /* Espacio para el sidebar */
+  width: calc(100% - 220px); /* Ancho restante después del sidebar */
+  transition: margin-left 0.3s ease, width 0.3s ease; /* Transición suave */
 }
-
-/* =========================================
-   3. COMPONENTES GLOBALES
-   ========================================= */
 
 /* Topbar */
 .topbar {
@@ -93,8 +85,6 @@ body {
   border-bottom: 2px solid #ddd;
   background: #f7e8a9;
   width: 100%;
-  border-radius: 8px;
-  margin-bottom: 2rem;
 }
 
 .topbar input {
@@ -105,12 +95,29 @@ body {
   border-radius: 4px;
 }
 
-.topbar .actions { display: flex; align-items: center; gap: 1rem; }
-.avatar { width: 40px; border-radius: 50%; cursor: pointer; }
-.carrito-icon img { width: 30px; cursor: pointer; transition: transform 0.2s; }
-.carrito-icon img:hover { transform: scale(1.1); }
+.topbar .actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
-/* Tarjetas */
+.avatar {
+  width: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.carrito-icon img {
+  width: 30px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.carrito-icon img:hover {
+  transform: scale(1.1);
+}
+
+/* Tarjetas unificadas */
 .card, .category-card {
   border: 2px solid #000;
   border-radius: 10px;
@@ -119,11 +126,26 @@ body {
   text-align: center;
   transition: transform 0.2s ease, background 0.2s ease;
 }
-.card:hover, .category-card:hover { background: #ffe680; transform: scale(1.03); }
-.card img, .category-card img { max-width: 100%; height: auto; border-radius: 8px; border: 2px solid #000; margin: 10px 0; }
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
 
-/* Botones Globales */
+.card:hover, .category-card:hover {
+  background: #ffe680;
+  transform: scale(1.03);
+}
+
+.card img, .category-card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid #000;
+  margin: 10px 0;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
 .btn {
   display: inline-block;
   margin-top: 0.5rem;
@@ -134,25 +156,253 @@ body {
   text-decoration: none;
   border-radius: 5px;
   transition: background 0.2s;
-  border: none;
-  cursor: pointer;
-  text-align: center;
 }
-.btn:hover { background: #1da851; }
 
-/* Elementos Auxiliares */
-section { padding: 0; /* El padding lo maneja el contenedor padre ahora */ }
-section h2, .highlight h1 { margin-bottom: 1.2rem; }
-.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; width: 100%; padding: 1rem; }
+.btn:hover {
+  background: #1da851;
+}
+
+/* Secciones */
+section {
+  padding: 2rem;
+}
+
+section h2, .highlight h1 {
+  margin-bottom: 1.2rem;
+}
+
+/* Grids */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  width: 100%;
+  padding: 1rem;
+}
 
 /* WhatsApp */
-.whatsapp-container { position: fixed; bottom: 20px; right: 20px; text-align: center; z-index: 1001; }
-.whatsapp-msg { display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #25d366; background: #fff; padding: 5px 10px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-.whatsapp-float img { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: transform 0.3s ease; }
-.whatsapp-float img:hover { transform: scale(1.1); }
+.whatsapp-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  text-align: center;
+  z-index: 1001;
+}
+
+.whatsapp-msg {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #25d366;
+  background: #fff;
+  padding: 5px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.whatsapp-float img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+}
+
+.whatsapp-float img:hover {
+  transform: scale(1.1);
+}
+
+
+/* === Estilos para la Página de Reseñas === */
+
+.reseñas-container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.reseñas-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #fdf6d9; 
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; 
+  margin-bottom: 2rem;
+}
+
+.reseñas-container label {
+  font-weight: bold;
+  margin-bottom: -0.5rem;
+}
+
+.reseñas-container input,
+.reseñas-container select,
+.reseñas-container textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #fff; 
+  border: 1px solid #aaa; 
+  color: #222; 
+  border-radius: 4px;
+  font-family: monospace, sans-serif;
+  font-size: 1rem;
+}
+
+#reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-card {
+  background-color: #fdf6d9; 
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; 
+}
+
+.review-card h3 {
+  color: #333; 
+  margin-bottom: 0.5rem;
+}
+
+.review-card .stars {
+  margin-bottom: 0.5rem;
+}
+
+/* === Estilos para la Página de Referidos === */
+
+.points-display, .benefits-list {
+  background-color: #fdf6d9; 
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; 
+  margin-top: 2rem;
+}
+
+.points-display h2, .benefits-list h2 {
+  color: #333; 
+  margin-bottom: 1rem;
+}
+
+.points-display p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.points-display span {
+  font-weight: bold;
+}
+
+.benefits-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.benefits-list li {
+  margin-bottom: 0.5rem;
+}
+/* === Estilos para la Página de Comunidad === */
+
+.highlight-card {
+  background-color: #fdf6d9; 
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #000; 
+  margin: 2rem;
+}
+
+.map-btn {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* === Estilos para Páginas de Autenticación === */
+
+.auth-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  z-index: 10;
+  max-width: 90%; /* Responsivo */
+}
+
+.auth-container h1 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.auth-container form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #fdf6d9;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 2px solid #000;
+  margin: 0 auto;
+}
+
+.auth-container .terms, .auth-container .remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-container .terms label, .auth-container .remember label {
+  margin-bottom: 0; 
+}
+
+.auth-container input[type="checkbox"] {
+  width: auto;
+}
+
+.auth-container .switch, .auth-container p {
+  margin-top: 1rem;
+}
+
+.auth-container .switch a, .auth-container p a {
+  color: #25d366; 
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* === Estilos para la Página de Perfil === */
+.btn-logout {
+  background-color: #d32f2f; 
+  margin-top: 1rem;
+}
+.btn-logout:hover {
+  background-color: #b71c1c;
+}
+
+/* === Estilos para la Página del Carrito === */
+.cart-container { padding: 2rem; }
+.cart-items { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+.cart-item { display: flex; align-items: center; gap: 1rem; background-color: #fdf6d9; padding: 1rem; border-radius: 8px; border: 2px solid #000; } 
+.cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
+.item-info { flex-grow: 1; }
+.item-info .price { color: #333; font-weight: bold; } 
+.btn-remove { background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 0.9rem; }
+.cart-summary { text-align: right; }
+.cart-summary h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+.cart-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+
 
 /* =========================================
-   4. UTILIDADES PARA ADMIN Y PÁGINAS
+   6. UTILIDADES DE ADMIN Y CONTENEDORES
    ========================================= */
 
 /* Clase para centrar contenido (Úsala en el div principal de Admin) */
@@ -165,7 +415,7 @@ section h2, .highlight h1 { margin-bottom: 1.2rem; }
 /* Contenedor blanco responsivo (Reemplaza los estilos fijos de <section>) */
 .responsive-section {
   width: 100%;
-  max-width: 1200px; /* Evita que se estire demasiado en pantallas gigantes */
+  max-width: 1200px;
   background: #fffdf0;
   border: 2px solid #000;
   border-radius: 10px;
@@ -182,106 +432,70 @@ section h2, .highlight h1 { margin-bottom: 1.2rem; }
   border-radius: 10px;
 }
 
-/* =========================================
-   5. ESTILOS DE PÁGINAS ESPECÍFICAS
-   ========================================= */
-
-/* Login / Registro */
-.auth-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  z-index: 2000; /* Mayor Z-index que el sidebar */
-  max-width: 90%;
-  background: #fffbea; 
-  border: 2px solid #000;
-  border-radius: 10px;
-}
-.auth-container form { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 1rem; background-color: #fdf6d9; padding: 2rem; border-radius: 8px; border: 2px solid #000; margin: 0 auto; }
-.auth-container .switch a { color: #25d366; font-weight: bold; text-decoration: none; }
-.auth-container .terms, .auth-container .remember { display: flex; align-items: center; gap: 0.5rem; }
-.auth-container .terms label, .auth-container .remember label { margin-bottom: 0; }
-.auth-container input[type="checkbox"] { width: auto; }
-
-/* Reseñas, Referidos, Comunidad, Perfil, Carrito */
-.reseñas-container, .points-display, .benefits-list, .highlight-card, .cart-item {
-  background-color: #fdf6d9;
-  border: 2px solid #000;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-}
-.reseñas-container { max-width: 800px; margin: 0 auto; }
-.reseñas-container form { display: flex; flex-direction: column; gap: 1rem; background-color: #fdf6d9; padding: 1.5rem; border-radius: 8px; border: 2px solid #000; margin-bottom: 2rem; }
-.reseñas-container input, .reseñas-container select, .reseñas-container textarea { width: 100%; padding: 0.75rem; background-color: #fff; border: 1px solid #aaa; color: #222; border-radius: 4px; font-size: 1rem; }
-#reviewsList { display: flex; flex-direction: column; gap: 1.5rem; }
-.review-card { background-color: #fdf6d9; padding: 1.5rem; border-radius: 8px; border: 2px solid #000; }
-
-/* Perfil */
-.btn-logout { background-color: #d32f2f; margin-top: 1rem; }
-.btn-logout:hover { background-color: #b71c1c; }
-
-/* Carrito */
-.cart-container { padding: 1rem; }
-.cart-items { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
-.cart-item { display: flex; align-items: center; gap: 1rem; }
-.cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
-.item-info { flex-grow: 1; }
-.btn-remove { background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 0.9rem; }
-.cart-summary { text-align: right; }
-.cart-summary h3 { font-size: 1.5rem; margin-bottom: 1rem; }
-.cart-actions { display: flex; justify-content: flex-end; gap: 1rem; }
-
 
 /* =========================================
-   6. MEDIA QUERIES (RESPONSIVIDAD GLOBAL)
+   7. MEDIA QUERIES GLOBALES (MÓVIL/TABLET)
    ========================================= */
 
-/* Tablets y Móviles (< 1000px) */
+/* Pantallas medianas (Tablets) y Pequeñas (Móviles) */
 @media (max-width: 1000px) {
-  
-  /* 1. Ocultar Sidebar */
+  /* 1. Ocultar Sidebar (se activará con el botón hamburguesa) */
   .sidebar {
-    transform: translateX(-100%); /* Se mueve fuera de la pantalla */
+    transform: translateX(-100%); 
+    z-index: 2000; /* Aseguramos que al abrirse quede encima */
   }
   
-  /* 2. Expandir Contenido Principal al 100% */
+  /* 2. El contenido principal ocupa todo el ancho */
   .main-content {
-    margin-left: 0 !important; /* Elimina el hueco izquierdo */
-    width: 100% !important;    /* Ocupa todo el ancho */
-    padding: 1rem;
-    padding-top: 2rem; /* Espacio arriba */
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding-top: 4rem; /* Espacio extra arriba para el botón menú */
   }
 
-  /* Ajustes visuales de contenedores */
-  .responsive-section {
-    width: 100%;
-    padding: 1.5rem;
+  /* Ajustes layout admin */
+  .admin-layout {
+    padding-left: 1rem !important; 
+    padding-right: 1rem !important;
+    padding-top: 6rem; 
   }
 }
 
-/* Móviles Pequeños (< 600px) */
+/* Pantallas Móviles (Celulares) */
 @media (max-width: 600px) {
-  h1 { font-size: 1.8rem; }
+  .responsive-section {
+    width: 98% !important; 
+    padding: 1.5rem !important;
+    min-width: auto !important;
+  }
+
+  /* Formularios en columna */
+  form {
+    flex-direction: column !important;
+  }
   
-  .topbar { flex-direction: column; gap: 10px; }
-  .topbar input { max-width: 100%; width: 100%; }
+  .topbar {
+    flex-direction: column;
+    gap: 10px;
+  }
   
-  form { flex-direction: column !important; }
-  
-  .cart-item { flex-direction: column; align-items: flex-start; }
-  .cart-actions { flex-direction: column; }
-  
-  .btn { width: 100%; text-align: center; }
+  .topbar input {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .cart-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
 }
+
 
 /* ---------------------------------------------------------- */
-/* --- ESTILOS DEL MENÚ MÓVIL (AÑADIR AL FINAL) --- */
+/* --- ESTILOS DEL MENÚ MÓVIL (AÑADIDO) --- */
 /* ---------------------------------------------------------- */
 
 /* 1. Estilo del Botón Hamburguesa */
