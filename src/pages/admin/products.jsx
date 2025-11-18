@@ -5,6 +5,18 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL + "/api/products";
 
+// Lista de categorías disponibles para seleccionar
+const CATEGORIES = [
+  "Juegos de Mesa",
+  "Accesorios",
+  "Consolas",
+  "Computadores Gamers",
+  "Sillas Gamers",
+  "Mouse",
+  "Mousepad",
+  "Poleras Personalizadas"
+];
+
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
   if (!token) return {};
@@ -15,7 +27,14 @@ const Products = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newProduct, setNewProduct] = useState({ name: "", price: "", image: "" });
+  
+  // Estado actualizado con category
+  const [newProduct, setNewProduct] = useState({ 
+    name: "", 
+    price: "", 
+    image: "", 
+    category: "" // Nuevo campo
+  });
 
   const formatPrice = (price) => {
     if (typeof price !== 'number') return price;
@@ -40,14 +59,27 @@ const Products = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (!newProduct.name || !newProduct.price || !newProduct.image) { alert("Completa los campos"); return; }
+    // Validación actualizada
+    if (!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.category) { 
+        alert("Por favor completa todos los campos, incluyendo la categoría."); 
+        return; 
+    }
+
+    const productToSend = {
+      ...newProduct,
+      price: parseFloat(newProduct.price),
+    };
+
     try {
-      await axios.post(API_URL, { ...newProduct, price: parseFloat(newProduct.price) }, getAuthHeaders());
+      await axios.post(API_URL, productToSend, getAuthHeaders());
       alert("Producto agregado");
-      setNewProduct({ name: "", price: "", image: "" });
+      setNewProduct({ name: "", price: "", image: "", category: "" }); // Reset
       setShowForm(false);
       handleListProducts();
-    } catch (error) { alert("Error: Verifica permisos de admin"); }
+    } catch (error) { 
+        console.error(error);
+        alert("Error: Verifica permisos de admin"); 
+    }
   };
 
   const handleDeleteProduct = async (id) => {
@@ -63,15 +95,12 @@ const Products = () => {
   const handleEdit = (id) => alert("Próximamente...");
 
   return (
-    // --- CAMBIO CLAVE: Layout automático ---
     <div className="main-content">
       
-      {/* Botón Volver (Flexible, no fijo) */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button onClick={() => navigate(-1)} className="btn" style={{ background: "#f7e8a9", color: "#333", border: "2px solid #000", cursor: "pointer", fontWeight: "bold" }}>Volver</button>
       </div>
 
-      {/* Sección Responsiva */}
       <section className="responsive-section">
         <h1 style={{ color: "#000", marginBottom: "2rem", fontSize: "2.2rem", fontWeight: "900", textAlign: "center", textTransform: "uppercase" }}>
           Inventario de Productos
@@ -91,12 +120,28 @@ const Products = () => {
              <div style={{ width: "150px", height: "150px", border: "2px dashed #ccc", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", background: "#f9f9f9", flexShrink: 0, margin: "0 auto" }}>
                  {newProduct.image ? <img src={newProduct.image} alt="Vista previa" style={{width: "100%", height: "100%", objectFit: "cover"}} /> : <span style={{color: "#aaa", fontSize: "0.8rem"}}>Sin imagen</span>}
              </div>
+             
              <form onSubmit={handleAddProduct} style={{ flex: 1, display: "flex", flexDirection: "column", gap: "1rem", minWidth: "250px" }}>
+                
                 <label style={{fontWeight: "bold"}}>Nombre</label>
                 <input type="text" name="name" placeholder="Ej: PC Gamer" value={newProduct.name} onChange={handleFormChange} style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px" }} />
                 
                 <label style={{fontWeight: "bold"}}>Precio (CLP)</label>
                 <input type="number" name="price" placeholder="Ej: 50000" value={newProduct.price} onChange={handleFormChange} style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px" }} />
+
+                {/* NUEVO SELECTOR DE CATEGORÍA */}
+                <label style={{fontWeight: "bold"}}>Categoría</label>
+                <select 
+                    name="category" 
+                    value={newProduct.category} 
+                    onChange={handleFormChange}
+                    style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px", background: "#fff" }}
+                >
+                    <option value="">-- Selecciona una Categoría --</option>
+                    {CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                </select>
 
                 <label style={{fontWeight: "bold"}}>URL Imagen</label>
                 <input type="text" name="image" placeholder="https://..." value={newProduct.image} onChange={handleFormChange} style={{ width: "100%", padding: "10px", border: "2px solid #000", borderRadius: "5px" }} />
@@ -108,10 +153,11 @@ const Products = () => {
 
         {/* Tabla Responsiva */}
         <div className="table-responsive" style={{ background: "#fff", boxShadow: "4px 4px 0px #ddd" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "600px" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "700px" }}>
             <thead style={{ background: "#222", color: "#fff", textTransform: "uppercase", fontSize: "0.9rem" }}>
               <tr>
                 <th style={{ padding: "15px" }}>Producto</th>
+                <th style={{ padding: "15px" }}>Categoría</th> {/* Columna Nueva */}
                 <th style={{ padding: "15px" }}>Precio</th>
                 <th style={{ padding: "15px", textAlign: "center" }}>Acciones</th>
               </tr>
@@ -125,13 +171,21 @@ const Products = () => {
                     </div>
                     <div><span style={{fontWeight: "bold", display: "block"}}>{product.name}</span><span style={{fontSize: "0.8rem", color: "#888"}}>ID: {product.id}</span></div>
                   </td>
+                  
+                  {/* Columna Categoría */}
+                  <td style={{ padding: "15px", color: "#555" }}>
+                    <span style={{background: "#eee", padding: "4px 8px", borderRadius: "4px", fontSize: "0.9rem", border: "1px solid #ddd"}}>
+                        {product.category || "Sin categoría"}
+                    </span>
+                  </td>
+
                   <td style={{ padding: "15px", fontWeight: "bold", color: "#25d366" }}>{formatPrice(product.price)}</td>
                   <td style={{ padding: "15px", textAlign: "center" }}>
                     <button onClick={() => handleEdit(product.id)} style={{ background: "#fff", border: "1px solid #25d366", color: "#25d366", fontWeight: "bold", padding: "5px 10px", borderRadius: "6px", marginRight: "8px", cursor: "pointer" }}>✎</button>
                     <button onClick={() => handleDeleteProduct(product.id)} style={{ background: "#fff", border: "1px solid #d32f2f", color: "#d32f2f", fontWeight: "bold", padding: "5px 10px", borderRadius: "6px", cursor: "pointer" }}>🗑</button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="3" style={{padding: "3rem", textAlign: "center", color: "#888"}}>No hay productos registrados.</td></tr>}
+              )) : <tr><td colSpan="4" style={{padding: "3rem", textAlign: "center", color: "#888"}}>No hay productos registrados.</td></tr>}
             </tbody>
           </table>
         </div>
