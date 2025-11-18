@@ -1,54 +1,36 @@
 // src/pages/admin/referrals.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // 1. IMPORTAMOS AXIOS
+import axios from 'axios';
 
-// 2. DEFINIMOS LA RUTA DE LA API
 const API_URL = import.meta.env.VITE_API_URL + '/api/referrals';
 
-// --- 1. FUNCIÓN HELPER PARA LOS HEADERS DE AUTORIZACIÓN ---
-// (Igual que en Users.jsx, esto adjunta el token a la petición)
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
-  if (!token) {
-    console.error("No se encontró el token de autenticación.");
-    return {};
-  }
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  };
+  if (!token) return {};
+  return { headers: { Authorization: `Bearer ${token}` } };
 };
 
 function AdminReferrals() {
   const navigate = useNavigate();
-
   const [codigos, setCodigos] = useState([]);
   const [nuevoCodigo, setNuevoCodigo] = useState('');
   const [selectedId, setSelectedId] = useState(null);
-
-  // Estados para el texto de beneficios (se mantiene igual)
   const [benefitsText, setBenefitsText] = useState('');
   const [isEditingBenefits, setIsEditingBenefits] = useState(false);
 
-  // 3. FUNCIÓN PARA CARGAR CÓDIGOS DESDE LA API
   const fetchCodes = async () => {
     try {
-      // --- AÑADIMOS HEADERS AL GET ---
       const response = await axios.get(API_URL, getAuthHeaders());
       setCodigos(response.data);
     } catch (error) {
       console.error('Error al cargar los códigos:', error);
-      setCodigos([]); // En caso de error, seteamos un array vacío
+      setCodigos([]);
     }
   };
 
   useEffect(() => {
-    // 4. CARGAMOS LOS CÓDIGOS DESDE LA API
     fetchCodes();
-
-    // 5. MANTENEMOS LA LÓGICA DE LOCALSTORAGE PARA EL TEXTO DE BENEFICIOS
     const storedBenefits = localStorage.getItem('benefitsText');
     if (storedBenefits) setBenefitsText(storedBenefits);
     else
@@ -57,12 +39,10 @@ function AdminReferrals() {
       );
   }, []);
 
-  // 7. MANTENEMOS EL USEEFFECT PARA EL TEXTO DE BENEFICIOS
   useEffect(() => {
     localStorage.setItem('benefitsText', benefitsText);
   }, [benefitsText]);
 
-  // 8. ACTUALIZAMOS EL MANEJADOR PARA AGREGAR CÓDIGOS
   const handleAddCode = async (e) => {
     e.preventDefault();
     if (nuevoCodigo.trim() === '') {
@@ -73,18 +53,16 @@ function AdminReferrals() {
     const codeToSend = { codigo: nuevoCodigo.trim().toUpperCase() };
 
     try {
-      // --- AÑADIMOS HEADERS AL POST ---
       await axios.post(API_URL, codeToSend, getAuthHeaders());
-      setNuevoCodigo(''); // Limpia el input
-      fetchCodes(); // Refresca la lista desde la API
+      setNuevoCodigo('');
+      fetchCodes();
       alert('Código agregado exitosamente.');
     } catch (error) {
       console.error('Error al agregar el código:', error);
-      alert('No se pudo guardar el código. Verifica que no esté repetido.');
+      alert('No se pudo guardar el código.');
     }
   };
 
-  // 9. ACTUALIZAMOS EL MANEJADOR PARA ELIMINAR CÓDIGOS
   const handleDelete = async () => {
     if (!selectedId) {
       alert('Selecciona un código para eliminar.');
@@ -92,10 +70,9 @@ function AdminReferrals() {
     }
 
     try {
-      // --- AÑADIMOS HEADERS AL DELETE ---
       await axios.delete(`${API_URL}/${selectedId}`, getAuthHeaders());
-      setSelectedId(null); // Limpia la selección
-      fetchCodes(); // Refresca la lista desde la API
+      setSelectedId(null);
+      fetchCodes();
       alert('Código eliminado exitosamente.');
     } catch (error) {
       console.error('Error al eliminar el código:', error);
@@ -103,54 +80,34 @@ function AdminReferrals() {
     }
   };
 
-  // Esta función es local y se mantiene igual
   const handleSelect = (id) => {
     setSelectedId(id === selectedId ? null : id);
   };
 
-  // ... TODO TU CÓDIGO JSX DE "RETURN" VA AQUÍ ...
   return (
-    <div
-      className="main-content"
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        minHeight: '100vh',
-        background: '#fffbea',
-        paddingTop: '0rem', 
-        paddingLeft: '10rem', 
-      }}
-    >
-      {/* Botón volver */}
-      <button
-        onClick={() => navigate(-1)}
-        className="btn"
-        style={{
-          position: 'fixed',
-          top: '16px',
-          right: '16px',
-          background: '#f7e8a9',
-          color: '#333',
-          border: '2px solid #000',
-          zIndex: 1000,
-        }}
-      >
-        Volver
-      </button>
+    // --- CAMBIO CLAVE: Usamos 'main-content' ---
+    <div className="main-content">
+      
+      {/* Botón Volver Flexible */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button
+            onClick={() => navigate(-1)}
+            className="btn"
+            style={{
+            background: '#f7e8a9',
+            color: '#333',
+            border: '2px solid #000',
+            zIndex: 1000,
+            cursor: 'pointer',
+            fontWeight: 'bold'
+            }}
+        >
+            Volver
+        </button>
+      </div>
 
-      {/* Contenedor principal */}
-      <section
-        style={{
-          background: '#fffdf0',
-          border: '2px solid #000',
-          borderRadius: '10px',
-          padding: '2.5rem',
-          width: '60%',
-          minWidth: '700px',
-          boxShadow: '4px 4px 8px rgba(0,0,0,0.15)',
-        }}
-      >
+      {/* Usamos 'responsive-section' del CSS global */}
+      <section className="responsive-section">
         <h1
           style={{
             textAlign: 'center',
@@ -168,6 +125,7 @@ function AdminReferrals() {
             justifyContent: 'center',
             gap: '1rem',
             marginBottom: '2rem',
+            flexWrap: 'wrap'
           }}
         >
           <button
