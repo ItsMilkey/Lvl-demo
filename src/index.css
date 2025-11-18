@@ -279,3 +279,59 @@ section h2, .highlight h1 { margin-bottom: 1.2rem; }
   
   .btn { width: 100%; text-align: center; }
 }
+
+/* ---------------------------------------------------------- */
+/* --- ESTILOS DEL MENÚ MÓVIL (AÑADIR AL FINAL) --- */
+/* ---------------------------------------------------------- */
+
+/* 1. Estilo del Botón Hamburguesa */
+.menu-toggle {
+  display: none; /* Oculto en PC */
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 3000; /* Por encima de todo */
+  background: #333;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.menu-toggle:hover {
+  background: #000;
+}
+
+/* 2. Fondo oscuro cuando se abre el menú */
+.menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 999; /* Justo debajo del sidebar */
+  backdrop-filter: blur(2px);
+}
+
+/* --- MEDIA QUERY: SOLO PARA MÓVILES/TABLETS (< 1000px) --- */
+@media (max-width: 1000px) {
+  
+  /* Mostrar el botón */
+  .menu-toggle {
+    display: block;
+  }
+
+  /* Mostrar el overlay si está activo */
+  .menu-overlay {
+    display: block;
+  }
+
+  /* Clase 'open' para deslizar el menú hacia adentro */
+  .sidebar.open {
+    transform: translateX(0) !important; /* Lo devuelve a la pantalla */
+    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+  }
+}
