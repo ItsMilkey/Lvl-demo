@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// --- ICONOS SVG (Se mantienen igual) ---
 function IconUsers() {
   return (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,107 +48,129 @@ function Admin() {
 
   const handleLogout = () => {
     localStorage.removeItem('usuarioActivo');
+    localStorage.removeItem('token'); // Aseguramos borrar el token también
+    localStorage.removeItem('role');
     navigate('/login');
   };
 
   const goTo = (path) => {
-    // Rutas mock para las secciones administrativas
     navigate(path);
   };
 
+  // Estilos comunes para las tarjetas
+  const cardStyle = {
+    width: '100%',
+    padding: '2rem',
+    minHeight: '140px',
+    textAlign: 'left',
+    borderRadius: '12px',
+    border: '2px solid #000', // Borde negro para consistencia con tu tema
+    background: '#fff',
+    cursor: 'pointer',
+    boxShadow: '4px 4px 0px rgba(0,0,0,0.1)', // Sombra ligera
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem'
+  };
+
   return (
-    <div
-      className="admin-page"
-      style={{
-        padding: '3rem',
-        paddingLeft: '25rem', // mover todo hacia la derecha bastante
-        minHeight: '100vh',
-        boxSizing: 'border-box',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start', // alinear al inicio para respetar el offset
-        background: 'transparent',
-      }}
-    >
-      {/* Botón Cerrar sesión en esquina superior derecha */}
+    // 1. USAMOS LA CLASE "main-content" (Esto aplica el margen inteligente y responsividad)
+    <div className="main-content">
+      
+      {/* Botón Cerrar sesión */}
       <button
         onClick={handleLogout}
         className="btn"
         style={{
-          position: 'fixed', // fijado al viewport para estar siempre en la esquina derecha
-          top: '16px',
-          right: '16px',
-          padding: '0.8rem 1.2rem', // fondo más grande
-          background: '#25a85a',
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: '#d32f2f', // Rojo para logout
           color: '#fff',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          zIndex: 1000,
-          fontSize: '1rem', // texto a tamaño normal
+          zIndex: 2000, // Por encima de todo
+          border: '2px solid #000'
         }}
       >
         Cerrar sesión
       </button>
 
-      <header style={{ width: '100%', maxWidth: 1100, marginBottom: '1.5rem', textAlign: 'center' }}>
-        <h1 style={{ margin: 0 }}>Panel de Administración</h1>
-        <p style={{ margin: '0.5rem 0 0', color: '#666' }}>Bienvenido, administrador. Usa los botones para acceder a las herramientas.</p>
-      </header>
+      <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', marginTop: '2rem' }}>
+        <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Panel de Administración</h1>
+          <p style={{ color: '#666', fontSize: '1.1rem' }}>Bienvenido, administrador. Selecciona una herramienta.</p>
+        </header>
 
-      <section
-        className="admin-grid"
-        style={{
-          width: '100%',
-          maxWidth: 700, // limitar ancho para centrar en 2 columnas
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(260px, 1fr))', // forzar 2 columnas
-          gap: '1.25rem',
-          justifyItems: 'center',
-          alignItems: 'center',
-        }}
-      >
-  <button className="admin-card" onClick={() => goTo('/admin/users')} style={{ width: '100%', padding: '2rem', minHeight: '140px', textAlign: 'left', borderRadius: '12px', border: '1px solid #eaeaea', background: '#fff', cursor: 'pointer', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {/* 2. GRID RESPONSIVO AUTOMÁTICO 
+           repeat(auto-fit, minmax(300px, 1fr)) -> Crea tantas columnas como quepan.
+           Si la pantalla es pequeña, baja a 1 columna automáticamente.
+        */}
+        <section
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '2rem',
+            width: '100%'
+          }}
+        >
+          {/* Tarjeta Usuarios */}
+          <button 
+            onClick={() => goTo('/admin/users')} 
+            style={cardStyle}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #000'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '4px 4px 0px rgba(0,0,0,0.1)'; }}
+          >
             <IconUsers />
             <div>
-                <h3 style={{ margin: 0, fontSize: '1.05rem' }}>Usuarios</h3>
-                <p style={{ margin: '0.35rem 0 0', color: '#666', fontSize: '0.9rem' }}>Crear, editar o eliminar usuarios.</p>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>Usuarios</h3>
+              <p style={{ margin: '0.5rem 0 0', color: '#555' }}>Gestionar cuentas y accesos.</p>
             </div>
-          </div>
-        </button>
+          </button>
 
-  <button className="admin-card" onClick={() => goTo('/admin/products')} style={{ width: '100%', padding: '2rem', minHeight: '140px', textAlign: 'left', borderRadius: '12px', border: '1px solid #e6e6e6', background: '#fff', cursor: 'pointer', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Tarjeta Productos */}
+          <button 
+            onClick={() => goTo('/admin/products')} 
+            style={cardStyle}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #000'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '4px 4px 0px rgba(0,0,0,0.1)'; }}
+          >
             <IconProducts />
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.05rem' }}>Productos</h3>
-              <p style={{ margin: '0.35rem 0 0', color: '#666', fontSize: '0.9rem' }}>Agregar, actualizar o quitar productos.</p>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>Productos</h3>
+              <p style={{ margin: '0.5rem 0 0', color: '#555' }}>Agregar o eliminar inventario.</p>
             </div>
-          </div>
-        </button>
+          </button>
 
-  <button className="admin-card" onClick={() => goTo('/admin/reviews')} style={{ width: '100%', padding: '2rem', minHeight: '140px', textAlign: 'left', borderRadius: '12px', border: '1px solid #e6e6e6', background: '#fff', cursor: 'pointer', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Tarjeta Reseñas */}
+          <button 
+            onClick={() => goTo('/admin/reviews')} 
+            style={cardStyle}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #000'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '4px 4px 0px rgba(0,0,0,0.1)'; }}
+          >
             <IconReviews />
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.05rem' }}>Reseñas</h3>
-              <p style={{ margin: '0.35rem 0 0', color: '#666', fontSize: '0.9rem' }}>Revisar y moderar reseñas de usuarios.</p>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>Reseñas</h3>
+              <p style={{ margin: '0.5rem 0 0', color: '#555' }}>Moderar comentarios de clientes.</p>
             </div>
-          </div>
-        </button>
+          </button>
 
-  <button className="admin-card" onClick={() => goTo('/admin/referrals')} style={{ width: '100%', padding: '2rem', minHeight: '140px', textAlign: 'left', borderRadius: '12px', border: '1px solid #e6e6e6', background: '#fff', cursor: 'pointer', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Tarjeta Referidos */}
+          <button 
+            onClick={() => goTo('/admin/referrals')} 
+            style={cardStyle}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #000'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '4px 4px 0px rgba(0,0,0,0.1)'; }}
+          >
             <IconReferrals />
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.05rem' }}>Referidos</h3>
-              <p style={{ margin: '0.35rem 0 0', color: '#666', fontSize: '0.9rem' }}>Ver y gestionar código de referidos y recompensas.</p>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>Referidos</h3>
+              <p style={{ margin: '0.5rem 0 0', color: '#555' }}>Códigos y recompensas.</p>
             </div>
-          </div>
-        </button>
-      </section>
+          </button>
+
+        </section>
+      </div>
     </div>
   );
 }
