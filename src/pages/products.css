@@ -35,7 +35,7 @@
 .product-grid {
   display: grid;
   /* FUERZA 4 COLUMNAS DE IGUAL ANCHO */
-  grid-template-columns: repeat(4, 1fr); 
+  grid-template-columns: repeat(5, 1fr); 
   gap: 25px; /* Espaciado entre tarjetas */
   padding: 0 20px 40px 20px; /* Margen a los lados */
   align-items: stretch; /* Asegura que todas las tarjetas de una fila tengan la misma altura */
