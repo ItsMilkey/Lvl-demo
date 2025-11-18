@@ -1,15 +1,13 @@
 // src/pages/ReferralsPage.jsx
 import { useState, useEffect } from 'react';
-import axios from 'axios'; // 1. Importamos Axios
-
-// 2. URL de la API (La misma que usa el Admin)
-const API_URL = import.meta.env.VITE_API_URL + '/api/referrals';
 
 function ReferralsPage() {
+  // Estado para guardar los puntos del usuario
   const [puntos, setPuntos] = useState(0);
+  // Estado para controlar el valor del input del formulario
   const [codigo, setCodigo] = useState('');
 
-  // Cargar puntos locales al iniciar
+  // Cargar los puntos desde localStorage cuando el componente se monta
   useEffect(() => {
     const puntosGuardados = localStorage.getItem('puntosLevelUp');
     if (puntosGuardados) {
@@ -17,58 +15,38 @@ function ReferralsPage() {
     }
   }, []);
 
-  const handleSubmit = async (e) => {
+  // Manejar el envío del formulario
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    const codigoInput = codigo.trim().toUpperCase();
-
-    if (codigoInput === '') {
-      alert('⚠️ Ingresa un código válido.');
+    if (codigo.trim() === '') {
+      alert('⚠️ Ingresa un código de referido válido.');
       return;
     }
 
-    try {
-      // 3. CONEXIÓN AL BACKEND: Pedimos la lista de códigos válidos
-      // (GET /api/referrals es público en tu SecurityConfig, así que no requiere token)
-      const response = await axios.get(API_URL);
-      const codigosValidos = response.data; // Array de objetos de la BD
+    // Lógica simple: cualquier código da 50 puntos
+    const nuevosPuntos = puntos + 50;
+    setPuntos(nuevosPuntos);
+    localStorage.setItem('puntosLevelUp', nuevosPuntos);
 
-      // 4. VERIFICACIÓN: Buscamos si el código ingresado existe en la BD
-      const codigoEncontrado = codigosValidos.find(c => c.codigo === codigoInput);
-
-      if (codigoEncontrado) {
-        // ¡ÉXITO! El código existe en Oracle
-        const nuevosPuntos = puntos + 50;
-        setPuntos(nuevosPuntos);
-        localStorage.setItem('puntosLevelUp', nuevosPuntos);
-        
-        alert(`✅ ¡Código ${codigoInput} canjeado! Has ganado 50 puntos.`);
-        setCodigo(''); 
-      } else {
-        // ERROR: El código no está en la base de datos
-        alert('❌ Este código no es válido o ha expirado.');
-      }
-
-    } catch (error) {
-      console.error("Error al verificar código:", error);
-      alert('Error de conexión con el servidor.');
-    }
+    alert(`✅ Código aplicado. Has ganado 50 puntos LevelUp.\nTotal: ${nuevosPuntos} puntos`);
+    setCodigo(''); // Limpiar el input después de enviarlo
   };
 
   return (
-    // Usamos 'main-content' para que se ajuste al sidebar automáticamente
-    <div className="main-content content-centered">
-        
-      <section className="reseñas-container" style={{maxWidth: '800px', width: '100%'}}>
+    // --- CAMBIO CLAVE: Envolvemos todo en "main-content" para que sea responsivo ---
+    <div className="main-content">
+      
+      <section className="reseñas-container"> {/* Reutilizamos este contenedor */}
         <h1>Programa de Referidos</h1>
         <p>Invita a tus amigos a unirse a LvL-UP Gamer y gana puntos por cada registro exitoso.</p>
 
+        {/* Reutilizamos el estilo del formulario de reseñas */}
         <form onSubmit={handleSubmit}>
           <label htmlFor="referralCode">Ingresa un código de referido</label>
           <input
             type="text"
             id="referralCode"
-            placeholder="Ej: LVLUP2024"
+            placeholder="Ej: ABC123"
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
             required
@@ -76,12 +54,14 @@ function ReferralsPage() {
           <button type="submit" className="btn">Aplicar Código</button>
         </form>
 
+        {/* Sección para mostrar los puntos */}
         <section className="points-display">
           <h2>🎮 Tus Recompensas</h2>
           <p>Puntos acumulados: <span>{puntos}</span></p>
           <p>Nivel: <span>{puntos < 150 ? 'Bronce' : 'Plata'}</span></p>
         </section>
 
+        {/* Beneficios del programa */}
         <section className="benefits-list">
           <h2>Beneficios del programa</h2>
           <ul>
@@ -91,6 +71,7 @@ function ReferralsPage() {
           </ul>
         </section>
       </section>
+
     </div>
   );
 }
