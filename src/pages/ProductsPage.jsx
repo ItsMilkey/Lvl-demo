@@ -2,7 +2,7 @@
 import { useContext, useState, useEffect, useMemo } from 'react'; 
 import { CartContext } from '../context/CartContext'; 
 import axios from 'axios'; 
-import './products.css'; // Asegúrate de que este archivo tenga el CSS de 5 columnas que hicimos
+import './products.css'; 
 
 const API_URL = import.meta.env.VITE_API_URL + '/api/products';
 
@@ -11,7 +11,7 @@ const CATEGORIES = ["Todos", "Juegos de Mesa", "Accesorios", "Consolas", "Comput
 
 function ProductsPage() {
   const { agregarAlCarrito } = useContext(CartContext); 
-  
+   
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,22 +51,24 @@ function ProductsPage() {
     return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(price);
   };
 
+  // --- ¡AQUÍ ESTABA EL ERROR CORREGIDO! ---
   const handleAddToCart = (productoBackend) => {
     const productoAdaptado = {
-        codigo: productoBackend.id,
+        id: productoBackend.id,      // ANTES DECÍA "codigo", AHORA DICE "id"
         nombre: productoBackend.name,
         precio: productoBackend.price, 
         img: productoBackend.image
     };
     agregarAlCarrito(productoAdaptado);
   };
+  // ----------------------------------------
 
   if (loading) return <div className="main-content" style={{textAlign: 'center', paddingTop: '4rem', fontSize: '1.5rem'}}>Cargando...</div>;
 
   return (
     <div className="main-content">
-      
-      {/* HEADER: Mismo estilo que tenías (Amarillo con borde) */}
+       
+      {/* HEADER */}
       <header className="topbar" style={{ flexDirection: 'column', gap: '1rem', alignItems: 'center', paddingBottom: '1.5rem' }}>
         <h1 style={{margin: 0}}>CATÁLOGO DE PRODUCTOS</h1>
         <input
@@ -79,10 +81,10 @@ function ProductsPage() {
         />
       </header>
 
-      {/* --- SECCIÓN DE FILTROS (Integrada al diseño) --- */}
+      {/* --- SECCIÓN DE FILTROS --- */}
       <section style={{ padding: '0 2rem 2rem 2rem' }}>
         
-        {/* 1. Filtros de Categoría (Estilo Botones Retro) */}
+        {/* 1. Filtros de Categoría */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '2rem' }}>
             {CATEGORIES.map(cat => (
                 <button
@@ -90,9 +92,8 @@ function ProductsPage() {
                     onClick={() => setSelectedCategory(cat)}
                     style={{
                         padding: '8px 16px',
-                        borderRadius: '6px', // Bordes un poco más cuadrados como tu tema
+                        borderRadius: '6px',
                         border: '2px solid #000',
-                        // Si está activo: Amarillo (tu color primario). Si no: Blanco.
                         background: selectedCategory === cat ? '#f7e8a9' : '#fff',
                         color: '#000',
                         cursor: 'pointer',
@@ -108,7 +109,7 @@ function ProductsPage() {
             ))}
         </div>
 
-        {/* 2. Filtro de Precio (Barra simple centrada) */}
+        {/* 2. Filtro de Precio */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <label style={{fontWeight: 'bold', fontSize: '1.1rem'}}>
                 Precio Máx: <span style={{color: '#25d366', background: '#fff', border: '1px solid #000', padding: '2px 6px', borderRadius: '4px'}}>{formatPrice(maxPrice)}</span>
@@ -125,7 +126,7 @@ function ProductsPage() {
         </div>
       </section>
 
-      {/* --- GRID DE PRODUCTOS (Tu Grid de 5 columnas intacto) --- */}
+      {/* --- GRID DE PRODUCTOS --- */}
       <section>
         <div id="productGrid" className="product-grid">
           {filtered.length > 0 ? (
@@ -139,7 +140,6 @@ function ProductsPage() {
                         />
                     </div>
                     
-                    {/* Pequeña etiqueta de categoría */}
                     <div style={{marginBottom: '5px'}}>
                         <span style={{fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 'bold', color: '#666', border: '1px solid #ccc', padding: '2px 6px', borderRadius: '4px', background: '#f9f9f9'}}>
                             {p.category || 'General'}
