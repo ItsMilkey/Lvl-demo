@@ -8,6 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL + '/api/ventas/historial';
 function HistoryPage() {
   const [ventas, setVentas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Nuevo estado para errores
   const navigate = useNavigate();
 
   const formatPrice = (price) => {
@@ -18,8 +19,12 @@ function HistoryPage() {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString("es-CL", options);
+    if (!dateString) return "Fecha desconocida";
+    const date = new Date(dateString);
+    // Si la fecha es inválida, devolvemos el string original
+    return isNaN(date.getTime()) ? dateString : date.toLocaleDateString("es-CL", {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
   };
 
   useEffect(() => {
@@ -27,7 +32,6 @@ function HistoryPage() {
       const token = localStorage.getItem('token');
       
       if (!token) {
-        alert("Debes iniciar sesión para ver tu historial");
         navigate('/login');
         return;
       }
@@ -37,8 +41,9 @@ function HistoryPage() {
           headers: { Authorization: `Bearer ${token}` }
         });
         setVentas(response.data);
-      } catch (error) {
-        console.error("Error al obtener historial:", error);
+      } catch (err) {
+        console.error("Error al obtener historial:", err);
+        setError("No se pudo cargar el historial. Intenta recargar la página.");
       } finally {
         setLoading(false);
       }
@@ -53,9 +58,16 @@ function HistoryPage() {
         <section className="responsive-section">
           <h1 style={{textAlign: 'center', marginBottom: '2rem'}}>📜 Mis Compras</h1>
 
+          {/* Mostrar Error si existe */}
+          {error && (
+            <div style={{color: 'red', textAlign: 'center', padding: '1rem', border: '1px solid red', borderRadius: '8px', marginBottom: '1rem'}}>
+                {error}
+            </div>
+          )}
+
           {loading ? (
             <p style={{textAlign: 'center'}}>Cargando historial...</p>
-          ) : ventas.length === 0 ? (
+          ) : !error && ventas.length === 0 ? (
             <div style={{textAlign: 'center', padding: '2rem'}}>
               <p>Aún no has realizado ninguna compra.</p>
             </div>
@@ -75,10 +87,15 @@ function HistoryPage() {
                   </div>
 
                   <div style={{marginBottom: '1rem'}}>
-                    {venta.detalles.map((detalle) => (
-                      <div key={detalle.id} style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px'}}>
-                        <span>{detalle.cantidad} x {detalle.producto.name}</span>
-                        <span>{formatPrice(detalle.precioUnitario * detalle.cantidad)}</span>
+                    {/* Verificación de seguridad: venta.detalles && ... */}
+                    {venta.detalles && venta.detalles.map((detalle, index) => (
+                      <div key={detalle.id || index} style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px'}}>
+                        <span>
+                            {detalle.cantidad} x {detalle.producto ? detalle.producto.name : 'Producto Eliminado'}
+                        </span>
+                        <span>
+                            {formatPrice((detalle.precioUnitario || 0) * detalle.cantidad)}
+                        </span>
                       </div>
                     ))}
                   </div>
