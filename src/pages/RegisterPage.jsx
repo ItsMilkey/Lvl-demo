@@ -1,16 +1,13 @@
 // src/pages/RegisterPage.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // 1. IMPORTAMOS AXIOS
+import axios from 'axios';
 
-// 2. DEFINIMOS LA RUTA DE LA API DE AUTENTICACIÓN
-// (Esta ruta es PÚBLICA gracias a tu SecurityConfig)
-const AUTH_URL = import.meta.env.VITE_API_URL + '/api/auth'; // <-- ¡CORREGIDO!
+const AUTH_URL = import.meta.env.VITE_API_URL + '/api/auth';
 
 function RegisterPage() {
-  const navigate = useNavigate(); // Hook para redirigir al usuario
+  const navigate = useNavigate();
 
-  // Un solo estado para todos los campos del formulario
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -20,19 +17,12 @@ function RegisterPage() {
     terms: false,
   });
 
-  // --- Tus funciones de validación (no cambian) ---
-  const isValidEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-  const isStrongPassword = (pwd) => {
-    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(pwd);
-  };
-  const isValidUsername = (u) => {
-    return /^[a-zA-Z0-9_]{3,20}$/.test(u);
-  };
-  // ---------------------------------------------
+  // --- Validaciones (Se mantienen igual) ---
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isStrongPassword = (pwd) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(pwd);
+  const isValidUsername = (u) => /^[a-zA-Z0-9_]{3,20}$/.test(u);
+  // ---------------------------------------
 
-  // Manejador para actualizar el estado (no cambia)
   const handleChange = (e) => {
     const { id, value, type, checked } = e.target;
     setFormData(prevData => ({
@@ -41,110 +31,95 @@ function RegisterPage() {
     }));
   };
 
-  // 3. MANEJADOR PARA EL ENVÍO DEL FORMULARIO (ACTUALIZADO A ASYNC)
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Recolectar errores para mostrarlos todos juntos
     const errors = [];
 
+    // Extracción de datos
     const username = (formData.username || '').trim();
     const email = (formData.email || '').trim().toLowerCase();
     const password = formData.password || '';
     const confirmPassword = formData.confirmPassword || '';
     const birthdate = formData.birthdate;
 
-    // --- Validaciones (Tus validaciones se mantienen) ---
-    if (!username) {
-      errors.push('El usuario es obligatorio.');
-    } else if (!isValidUsername(username)) {
-      errors.push('El usuario debe tener entre 3 y 20 caracteres y solo puede contener letras, números y guion bajo (_).');
-    }
-    if (!email) {
-      errors.push('El correo electrónico es obligatorio.');
-    } else if (!isValidEmail(email)) {
-      errors.push('El correo electrónico no tiene un formato válido.');
-    }
-    if (!password) {
-      errors.push('La contraseña es obligatoria.');
-    }
-    if (password !== confirmPassword) {
-      errors.push('Las contraseñas no coinciden.');
-    }
-    if (password && !isStrongPassword(password)) {
-      errors.push('La contraseña debe tener al menos 8 caracteres e incluir mayúsculas, minúsculas, números y caracteres especiales.');
-    }
+    // --- Ejecución de Validaciones ---
+    if (!username) errors.push('El usuario es obligatorio.');
+    else if (!isValidUsername(username)) errors.push('El usuario debe tener 3-20 caracteres (letras, números, _).');
+    
+    if (!email) errors.push('El correo es obligatorio.');
+    else if (!isValidEmail(email)) errors.push('Formato de correo inválido.');
+    
+    if (!password) errors.push('La contraseña es obligatoria.');
+    if (password !== confirmPassword) errors.push('Las contraseñas no coinciden.');
+    if (password && !isStrongPassword(password)) errors.push('La contraseña debe tener mayúsculas, minúsculas, números y símbolos.');
+    
     if (!birthdate) {
-      errors.push('Por favor ingresa tu fecha de nacimiento.');
+      errors.push('Ingresa tu fecha de nacimiento.');
     } else {
       const birth = new Date(birthdate);
       const today = new Date();
-      if (isNaN(birth.getTime())) {
-        errors.push('La fecha de nacimiento no es válida.');
-      } else {
-        if (birth > today) {
-          errors.push('La fecha de nacimiento no puede ser en el futuro.');
-        } else {
-          let age = today.getFullYear() - birth.getFullYear();
-          const m = today.getMonth() - birth.getMonth();
-          if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-            age--;
-          }
-          if (age < 18) {
-            errors.push('Debes ser mayor de 18 años para registrarte.');
-          }
-        }
-      }
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+      if (age < 18) errors.push('Debes ser mayor de 18 años.');
     }
-    if (!formData.terms) {
-      errors.push('Debes aceptar los términos y condiciones.');
-    }
-    // --- Fin de Validaciones ---
+    
+    if (!formData.terms) errors.push('Acepta los términos y condiciones.');
 
     if (errors.length > 0) {
       alert(errors.join('\n'));
       return;
     }
 
-    // 4. SI LAS VALIDACIONES PASAN, LLAMAMOS AL BACKEND
-    
-    // Preparamos los datos para el RegisterDTO (solo name, email, password)
+    // Datos para el backend
     const registerData = {
-      name: username, // Mapeamos 'username' del form a 'name' del DTO
+      name: username,
       email: email,
       password: password
     };
 
     try {
-      // 5. LLAMAMOS AL ENDPOINT DE REGISTRO (PÚBLICO)
-      // Ahora AUTH_URL tendrá la URL correcta de tu backend de Java
+      // LLAMADA AL BACKEND
       const response = await axios.post(`${AUTH_URL}/register`, registerData);
       
-      // El backend nos devuelve el token Y el rol (ROLE_ADMIN si es el primero)
-      console.log('Respuesta de registro:', response.data); 
+      // --- CAMBIO CLAVE: AUTO-LOGIN ---
+      // Como el backend devuelve el token al registrarse, lo usamos de inmediato.
+      const { token, role } = response.data;
 
-      // 6. Si todo es válido...
-      alert(`¡Registro exitoso para ${username}! Serás redirigido para iniciar sesión.`);
-      navigate('/login'); // Redirigimos al login
+      if (token) {
+          // 1. Guardamos la sesión
+          localStorage.setItem('token', token);
+          localStorage.setItem('role', role);
+
+          alert(`¡Bienvenido ${username}! Tu cuenta ha sido creada.`);
+
+          // 2. Redirección inteligente
+          if (role === 'ROLE_ADMIN') {
+              navigate('/admin');
+          } else {
+              navigate('/'); // Vamos al inicio para comprar
+          }
+
+          // 3. Forzamos recarga para que el Navbar detecte el login y muestre el Carrito/Historial
+          window.location.reload();
+      } else {
+          // Fallback por si el backend solo devuelve un mensaje de éxito sin token
+          alert('Cuenta creada. Por favor inicia sesión.');
+          navigate('/login');
+      }
 
     } catch (error) {
-      // 7. SI EL BACKEND DEVUELVE UN ERROR
-      console.error("Error en el registro:", error);
-      
-      // AHORA SÍ VEREMOS ERRORES REALES DEL BACKEND
+      console.error("Error registro:", error);
       if (error.response && (error.response.status === 500 || error.response.status === 400)) {
-        // El 'RuntimeException("El email ya está en uso")' del backend llega como un error 500
-         alert('Error al registrar: El correo electrónico ya está en uso.');
+         alert('Error: Es posible que el correo ya esté registrado.');
       } else if (error.code === "ERR_NETWORK") {
-         alert('Error de red. ¿Está el backend de Java corriendo y accesible?');
-      }
-      else {
-        alert('Ocurrió un error inesperado durante el registro.');
+         alert('Error de conexión con el servidor.');
+      } else {
+        alert('Ocurrió un error inesperado.');
       }
     }
   };
 
-  // --- TU JSX NO CAMBIA ---
   return (
     <div className="auth-container">
       <h1>Registro</h1>

@@ -1,75 +1,58 @@
 // src/pages/LoginPage.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // 1. IMPORTAMOS AXIOS
+import axios from 'axios';
 
-// 2. DEFINIMOS LA RUTA DE LA API DE AUTENTICACIÓN
-const AUTH_URL = import.meta.env.VITE_API_URL + '/api/auth'; // <-- ¡ESTA ES LA LÍNEA CORREGIDA!
+const AUTH_URL = import.meta.env.VITE_API_URL + '/api/auth';
 
 function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // 3. ACTUALIZAMOS LA FUNCIÓN 'handleSubmit' PARA QUE SEA ASÍNCRONA
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 4. DATOS QUE ENVIAREMOS AL BACKEND (coincide con LoginDTO.java)
-    const loginData = {
-      email: email,
-      password: password
-    };
+    const loginData = { email, password };
 
     try {
-      // 5. LLAMAMOS AL ENDPOINT DE LOGIN
-      // (Ahora sí usará la URL correcta de tu backend de Java)
       const response = await axios.post(`${AUTH_URL}/login`, loginData);
-
-      // 6. SI EL LOGIN ES EXITOSO (TENEMOS UN TOKEN Y ROL)
       const { token, role } = response.data;
 
-      // 7. GUARDAMOS EL TOKEN Y EL ROL EN LOCALSTORAGE
-      // (Esto es lo que leerá tu ProtectedRoute)
+      // Guardamos credenciales
       localStorage.setItem('token', token);
       localStorage.setItem('role', role); 
       
-      // 8. LÓGICA DE REDIRECCIÓN BASADA EN EL ROL (DEVUELTO POR EL BACKEND)
-      // (Esta lógica ya era perfecta)
+      // --- LÓGICA DE REDIRECCIÓN ---
       if (role === 'ROLE_ADMIN') {
         alert('¡Bienvenido Administrador!');
-        navigate('/admin'); // Redirige al panel de admin
+        navigate('/admin'); 
       } else {
+        // Cualquier otro usuario (incluyendo los que no son @lvlup.com)
+        // se van al Inicio para poder comprar.
         alert('¡Inicio de sesión exitoso!');
-        navigate('/'); // Redirige a la página de inicio
+        navigate('/'); 
+        // Recargamos la página brevemente para que el Navbar actualice los botones
+        window.location.reload(); 
       }
 
     } catch (error) {
-      // 9. SI EL LOGIN FALLA (401, 403, 500, etc.)
-      console.error("Error en el inicio de sesión:", error);
-      // El backend (Spring Security) devolverá un error 401 o 403 si los datos son incorrectos
+      console.error("Error login:", error);
       alert('Error: Email o contraseña incorrectos.');
     }
   };
 
-  // --- TU CÓDIGO JSX (return) NO CAMBIA, YA ESTÁ PERFECTO ---
   return (
     <div className="auth-container">
       <h1>Iniciar Sesión</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Correo electrónico</label>
-        <input type="email" id="email" placeholder="ejemplo@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 
         <label htmlFor="password">Contraseña</label>
-        <input type="password" id="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         
-        <div className="remember">
-          <input type="checkbox" id="remember" />
-          <label htmlFor="remember">Recordar sesión</label>
-        </div>
-
         <button type="submit" className="btn">Entrar</button>
-        <p><Link to="#">¿Olvidaste tu contraseña?</Link></p>
       </form>
       <p className="switch">¿No tienes cuenta? <Link to="/registro">Regístrate</Link></p>
     </div>

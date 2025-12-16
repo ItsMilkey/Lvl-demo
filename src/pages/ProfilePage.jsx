@@ -19,6 +19,23 @@ function ProfilePage() {
   
   const [loading, setLoading] = useState(true);
 
+  // --- LOGOUT REAL ---
+  const handleLogout = () => {
+    // 1. Borramos TODO rastro de la sesión
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    
+    // 2. Feedback
+    alert('👋 Sesión cerrada correctamente.');
+    
+    // 3. Forzamos recarga para actualizar el Navbar
+    window.location.reload(); // Esto recargará la app y, como no hay token, el Navbar se ocultará.
+    
+    // (Opcional, la recarga ya te lleva al inicio o login si tienes lógica global, 
+    // pero navigate es seguro por si acaso)
+    navigate('/login');
+  };
+
   // --- CARGAR DATOS REALES DEL BACKEND ---
   useEffect(() => {
     const fetchProfile = async () => {
@@ -43,8 +60,11 @@ function ProfilePage() {
         }));
       } catch (error) {
         console.error("Error al cargar perfil:", error);
-        alert("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
-        handleLogout(); // Si el token no sirve, cerramos sesión
+        // Si el token expiró o es inválido (403/401), cerramos sesión automáticamente
+        if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            alert("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+            handleLogout();
+        }
       } finally {
         setLoading(false);
       }
@@ -62,18 +82,7 @@ function ProfilePage() {
   // Guardar cambios (Por ahora solo simulación visual o podrías hacer un PUT)
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('✅ Datos locales actualizados.');
-  };
-
-  // --- LOGOUT REAL ---
-  const handleLogout = () => {
-    // 1. Borramos TODO rastro de la sesión
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    
-    // 2. Feedback y redirección
-    alert('👋 Sesión cerrada correctamente.');
-    navigate('/login');
+    alert('✅ Datos locales actualizados (Simulación).');
   };
 
   if (loading) return <div className="auth-container"><p>Cargando perfil...</p></div>;
@@ -128,7 +137,7 @@ function ProfilePage() {
         <button 
             onClick={handleLogout} 
             className="btn" 
-            style={{backgroundColor: '#d32f2f', border: '2px solid #000'}}
+            style={{backgroundColor: '#d32f2f', border: '2px solid #000', color: 'white'}}
         >
             Cerrar sesión
         </button>
