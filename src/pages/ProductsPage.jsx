@@ -1,24 +1,71 @@
 // src/pages/ProductsPage.jsx
-import { useContext, useState, useEffect, useMemo } from 'react'; 
-import { CartContext } from '../context/CartContext'; 
-import axios from 'axios'; 
-import './products.css'; 
+import { useContext, useState, useEffect, useMemo } from 'react';
+import { CartContext } from '../context/CartContext';
+import axios from 'axios';
+import './products.css';
+import QuantitySelector from '../components/QuantitySelector';
 
 const API_URL = import.meta.env.VITE_API_URL + '/api/products';
 
 // Categorías disponibles
 const CATEGORIES = ["Todos", "Juegos de Mesa", "Accesorios", "Consolas", "Computadores Gamers", "Mouse", "Mousepad", "Poleras Personalizadas"];
 
+const ProductItem = ({ p, onAdd }) => {
+  const [qty, setQty] = useState(1);
+
+  const handleAdd = () => {
+    onAdd(p, qty);
+    setQty(1);
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(price);
+  };
+
+  return (
+    <div className="product-card">
+      <div className="image-container">
+        <img
+          src={p.image}
+          alt={p.name}
+          onError={(e) => { e.target.src = 'https://via.placeholder.com/300?text=Sin+Imagen' }}
+        />
+      </div>
+
+      <div style={{ marginBottom: '5px' }}>
+        <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 'bold', color: '#666', border: '1px solid #ccc', padding: '2px 6px', borderRadius: '4px', background: '#f9f9f9' }}>
+          {p.category || 'General'}
+        </span>
+      </div>
+
+      <h3>{p.name}</h3>
+      <p className="price">{formatPrice(p.price)}</p>
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <QuantitySelector
+          quantity={qty}
+          onIncrease={() => setQty(q => q + 1)}
+          onDecrease={() => setQty(q => Math.max(1, q - 1))}
+        />
+      </div>
+
+      <button onClick={handleAdd} className="btn-add">
+        Agregar al Carrito
+      </button>
+    </div>
+  );
+};
+
 function ProductsPage() {
-  const { agregarAlCarrito } = useContext(CartContext); 
-   
+  const { agregarAlCarrito } = useContext(CartContext);
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // --- ESTADOS DE FILTRO ---
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [maxPrice, setMaxPrice] = useState(2000000); 
+  const [maxPrice, setMaxPrice] = useState(2000000);
 
   // Cargar productos
   useEffect(() => {
@@ -38,7 +85,7 @@ function ProductsPage() {
   // --- LÓGICA DE FILTRADO UNIFICADA ---
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    
+
     return products.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(term);
       const matchesCategory = selectedCategory === 'Todos' || p.category === selectedCategory;
@@ -51,78 +98,76 @@ function ProductsPage() {
     return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(price);
   };
 
-  // --- ¡AQUÍ ESTABA EL ERROR CORREGIDO! ---
-  const handleAddToCart = (productoBackend) => {
+  const handleAddToCart = (productoBackend, cantidad) => {
     const productoAdaptado = {
-        id: productoBackend.id,      // ANTES DECÍA "codigo", AHORA DICE "id"
-        nombre: productoBackend.name,
-        precio: productoBackend.price, 
-        img: productoBackend.image
+      id: productoBackend.id,
+      nombre: productoBackend.name,
+      precio: productoBackend.price,
+      img: productoBackend.image
     };
-    agregarAlCarrito(productoAdaptado);
+    agregarAlCarrito(productoAdaptado, cantidad);
   };
-  // ----------------------------------------
 
-  if (loading) return <div className="main-content" style={{textAlign: 'center', paddingTop: '4rem', fontSize: '1.5rem'}}>Cargando...</div>;
+  if (loading) return <div className="main-content" style={{ textAlign: 'center', paddingTop: '4rem', fontSize: '1.5rem' }}>Cargando...</div>;
 
   return (
     <div className="main-content">
-       
+
       {/* HEADER */}
       <header className="topbar" style={{ flexDirection: 'column', gap: '1rem', alignItems: 'center', paddingBottom: '1.5rem' }}>
-        <h1 style={{margin: 0}}>CATÁLOGO DE PRODUCTOS</h1>
+        <h1 style={{ margin: 0 }}>CATÁLOGO DE PRODUCTOS</h1>
         <input
           id="searchBar"
           type="text"
           placeholder="Buscar productos..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{maxWidth: '600px', width: '100%'}} 
+          style={{ maxWidth: '600px', width: '100%' }}
         />
       </header>
 
       {/* --- SECCIÓN DE FILTROS --- */}
       <section style={{ padding: '0 2rem 2rem 2rem' }}>
-        
+
         {/* 1. Filtros de Categoría */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '2rem' }}>
-            {CATEGORIES.map(cat => (
-                <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    style={{
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        border: '2px solid #000',
-                        background: selectedCategory === cat ? '#f7e8a9' : '#fff',
-                        color: '#000',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        transition: 'transform 0.1s',
-                        fontSize: '0.9rem'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                    {cat}
-                </button>
-            ))}
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: '2px solid #000',
+                background: selectedCategory === cat ? '#f7e8a9' : '#fff',
+                color: '#000',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                transition: 'transform 0.1s',
+                fontSize: '0.9rem'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         {/* 2. Filtro de Precio */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <label style={{fontWeight: 'bold', fontSize: '1.1rem'}}>
-                Precio Máx: <span style={{color: '#25d366', background: '#fff', border: '1px solid #000', padding: '2px 6px', borderRadius: '4px'}}>{formatPrice(maxPrice)}</span>
-            </label>
-            <input 
-                type="range" 
-                min="0" 
-                max="2000000" 
-                step="10000" 
-                value={maxPrice} 
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                style={{ width: '100%', maxWidth: '300px', cursor: 'pointer', accentColor: '#000' }}
-            />
+          <label style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+            Precio Máx: <span style={{ color: '#25d366', background: '#fff', border: '1px solid #000', padding: '2px 6px', borderRadius: '4px' }}>{formatPrice(maxPrice)}</span>
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="2000000"
+            step="10000"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(Number(e.target.value))}
+            style={{ width: '100%', maxWidth: '300px', cursor: 'pointer', accentColor: '#000' }}
+          />
         </div>
       </section>
 
@@ -131,36 +176,19 @@ function ProductsPage() {
         <div id="productGrid" className="product-grid">
           {filtered.length > 0 ? (
             filtered.map(p => (
-                <div key={p.id} className="product-card">
-                    <div className="image-container">
-                        <img 
-                            src={p.image} 
-                            alt={p.name} 
-                            onError={(e) => {e.target.src='https://via.placeholder.com/300?text=Sin+Imagen'}}
-                        />
-                    </div>
-                    
-                    <div style={{marginBottom: '5px'}}>
-                        <span style={{fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 'bold', color: '#666', border: '1px solid #ccc', padding: '2px 6px', borderRadius: '4px', background: '#f9f9f9'}}>
-                            {p.category || 'General'}
-                        </span>
-                    </div>
-
-                    <h3>{p.name}</h3>
-                    <p className="price">{formatPrice(p.price)}</p>
-                    
-                    <button onClick={() => handleAddToCart(p)} className="btn-add">
-                        Agregar al Carrito
-                    </button>
-                </div>
+              <ProductItem
+                key={p.id}
+                p={p}
+                onAdd={handleAddToCart}
+              />
             ))
           ) : (
-              <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: '#666', fontSize: '1.2rem'}}>
-                  <p>🚫 No se encontraron productos.</p>
-                  <button onClick={() => {setSearch(''); setSelectedCategory('Todos'); setMaxPrice(2000000)}} className="btn" style={{marginTop: '1rem'}}>
-                    Limpiar Filtros
-                  </button>
-              </div>
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: '#666', fontSize: '1.2rem' }}>
+              <p>🚫 No se encontraron productos.</p>
+              <button onClick={() => { setSearch(''); setSelectedCategory('Todos'); setMaxPrice(2000000) }} className="btn" style={{ marginTop: '1rem' }}>
+                Limpiar Filtros
+              </button>
+            </div>
           )}
         </div>
       </section>
