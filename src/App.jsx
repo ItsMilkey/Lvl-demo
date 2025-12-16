@@ -17,6 +17,7 @@ import AdminReferrals from './pages/admin/referrals.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import CartPage from './pages/CartPage.jsx';
+import HistoryPage from './pages/HistoryPage.jsx'; // <--- IMPORTACIÓN AÑADIDA
 
 function App() {
   const location = useLocation();
@@ -38,13 +39,7 @@ function App() {
         />
       )}
 
-      {/* El <main> calcula su margen dinámicamente:
-         - Si no hay navbar: margen 0
-         - Si está colapsada: margen 60px
-         - Si está expandida: margen 220px
-         
-         Nota: En móviles, el CSS global con !important sobrescribe esto a 0 automáticamente.
-      */}
+      {/* El <main> calcula su margen dinámicamente */}
       <main 
         className="main-content"
         style={{ 
@@ -88,6 +83,10 @@ function App() {
           <Route 
             path="/carrito" 
             element={<ProtectedRoute><CartPage /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/historial" 
+            element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} 
           />
           <Route
             path="/perfil"

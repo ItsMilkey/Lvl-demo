@@ -1,15 +1,20 @@
 // src/pages/CartPage.jsx
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import axios from 'axios';
+
+// URL base de tu API (usamos la misma variable de entorno que en el Login)
+const API_URL = import.meta.env.VITE_API_URL + '/api/ventas';
 
 function CartPage() {
-  // Usamos useContext para acceder a los datos y funciones del carrito
+  const navigate = useNavigate();
   const { carrito, eliminarDelCarrito, vaciarCarrito } = useContext(CartContext);
+  const [procesando, setProcesando] = useState(false);
 
-  // Calculamos el total
+  // Calculamos el total visual
   const total = carrito.reduce((acc, producto) => acc + producto.precio, 0);
 
-  // Función auxiliar para formatear dinero
   const formatPrice = (price) => {
     return new Intl.NumberFormat("es-CL", {
       style: "currency",
@@ -18,28 +23,71 @@ function CartPage() {
     }).format(price);
   };
 
-  // Lógica de Finalizar Compra (Simulada)
-  const handleCheckout = () => {
+  // --- LÓGICA DE COMPRA REAL CONECTADA AL BACKEND ---
+  const handleCheckout = async () => {
+    // 1. Validar carrito vacío
     if (carrito.length === 0) {
-      alert("⚠️ Error: Agrega al menos un producto al carrito para comprar.");
+      alert("⚠️ El carrito está vacío.");
       return;
     }
 
-    // Si hay productos, simulamos éxito
-    alert(`✅ ¡Compra completada con éxito!\n\nTotal pagado: ${formatPrice(total)}\n\nGracias por tu compra en LvL-UP Gamer.`);
+    // 2. Validar sesión (Token)
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("🔒 Debes iniciar sesión para realizar una compra.");
+      navigate('/login'); // Redirigimos al login
+      return;
+    }
+
+    // 3. Preparar los datos para el Backend
+    // Tu carrito es: [ProductoA, ProductoA, ProductoB]
+    // El backend quiere: [{productoId: 1, cantidad: 2}, {productoId: 2, cantidad: 1}]
     
-    // Vaciamos el carrito automáticamente
-    vaciarCarrito();
+    // Paso intermedio: Contar frecuencias
+    const conteoProductos = {};
+    carrito.forEach(prod => {
+      conteoProductos[prod.id] = (conteoProductos[prod.id] || 0) + 1;
+    });
+
+    // Transformar al formato del DTO de Java
+    const itemsParaEnviar = Object.keys(conteoProductos).map(id => ({
+      productoId: parseInt(id),
+      cantidad: conteoProductos[id]
+    }));
+
+    const compraData = { items: itemsParaEnviar };
+
+    try {
+      setProcesando(true);
+      
+      // 4. Petición POST al Backend con el Token
+      await axios.post(`${API_URL}/comprar`, compraData, {
+        headers: {
+          'Authorization': `Bearer ${token}` // ¡Importante!
+        }
+      });
+
+      // 5. Éxito
+      alert(`✅ ¡Compra exitosa!\n\nSe ha guardado en tu historial.\nTotal pagado: ${formatPrice(total)}`);
+      vaciarCarrito();
+      navigate('/historial'); // Redirigimos a la nueva vista de historial
+
+    } catch (error) {
+      console.error("Error en la compra:", error);
+      if (error.response && error.response.status === 403) {
+        alert("⛔ Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+        navigate('/login');
+      } else {
+        alert("❌ Hubo un error al procesar la compra. Inténtalo de nuevo.");
+      }
+    } finally {
+      setProcesando(false);
+    }
   };
 
   return (
-    // 1. Wrapper principal para responsividad y Sidebar
     <div className="main-content">
-      
-      {/* Centramos el contenido */}
       <div className="content-centered">
-        
-        {/* 2. Contenedor blanco responsivo */}
         <section className="responsive-section cart-container">
           <h1 style={{textAlign: 'center', marginBottom: '2rem', textTransform: 'uppercase'}}>
             Tu Carrito de Compras
@@ -52,11 +100,9 @@ function CartPage() {
             </div>
           ) : (
             <>
-              {/* Lista de Items */}
               <div className="cart-items">
                 {carrito.map((producto, index) => (
                   <div key={index} className="cart-item">
-                    {/* Imagen con fallback por si falla */}
                     <img 
                         src={producto.img} 
                         alt={producto.nombre} 
@@ -79,7 +125,6 @@ function CartPage() {
                 ))}
               </div>
 
-              {/* Resumen y Botones de Acción */}
               <div className="cart-summary" style={{marginTop: '2rem', borderTop: '2px solid #000', paddingTop: '1rem'}}>
                 <h3 style={{fontSize: '1.5rem', marginBottom: '1.5rem'}}>
                     Total: <span style={{color: '#25d366'}}>{formatPrice(total)}</span>
@@ -88,8 +133,9 @@ function CartPage() {
                 <div className="cart-actions">
                   <button 
                     onClick={vaciarCarrito} 
-                    className="btn btn-logout" // Usa el estilo rojo definido en index.css
-                    style={{marginTop: 0}} // Ajuste fino
+                    className="btn btn-logout" 
+                    style={{marginTop: 0}}
+                    disabled={procesando}
                   >
                     Vaciar Carrito
                   </button>
@@ -97,9 +143,10 @@ function CartPage() {
                   <button 
                     onClick={handleCheckout} 
                     className="btn"
-                    style={{marginTop: 0}}
+                    style={{marginTop: 0, opacity: procesando ? 0.7 : 1}}
+                    disabled={procesando}
                   >
-                    Finalizar Compra
+                    {procesando ? 'Procesando...' : 'Finalizar Compra'}
                   </button>
                 </div>
               </div>

@@ -30,6 +30,12 @@ function Navbar({ isCollapsed, toggleSidebar }) {
           <ul>
             <li><NavLink to="/" onClick={closeMobile} title="Inicio">{isCollapsed ? '🏠' : '🏠 Inicio'}</NavLink></li>
             <li><NavLink to="/productos" onClick={closeMobile} title="Productos">{isCollapsed ? '📦' : '📦 Productos'}</NavLink></li>
+            
+            {/* --- NUEVOS ENLACES AGREGADOS --- */}
+            <li><NavLink to="/carrito" onClick={closeMobile} title="Carrito">{isCollapsed ? '🛒' : '🛒 Carrito'}</NavLink></li>
+            <li><NavLink to="/historial" onClick={closeMobile} title="Historial">{isCollapsed ? '📜' : '📜 Historial'}</NavLink></li>
+            {/* -------------------------------- */}
+
             <li><NavLink to="/reseñas" onClick={closeMobile} title="Reseñas">{isCollapsed ? '⭐' : '⭐ Reseñas'}</NavLink></li>
             <li><NavLink to="/referidos" onClick={closeMobile} title="Referidos">{isCollapsed ? '👥' : '👥 Referidos'}</NavLink></li>
             <li><NavLink to="/comunidad" onClick={closeMobile} title="Comunidad">{isCollapsed ? '🌍' : '🌍 Comunidad'}</NavLink></li>
