@@ -1,4 +1,4 @@
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     basePath: '',
     frameworks: ['jasmine'],
@@ -7,16 +7,17 @@ module.exports = function(config) {
       'src/data/productosData.js',
       'src/services/ServicioAPI.js',
       'src/utils/carritoUtils.js',
-      
+
       // Luego cargamos los archivos de prueba
       'tests/productos.spec.js',
       'tests/carrito.spec.js',
-      'tests/ServicioAPI.test.js'
+      'tests/ServicioAPI.test.js',
+      'tests/new_features.spec.js'
     ],
     exclude: [
       'src/main.jsx'
     ],
-   
+
     preprocessors: {},
     webpackMiddleware: {
       stats: 'errors-only'
